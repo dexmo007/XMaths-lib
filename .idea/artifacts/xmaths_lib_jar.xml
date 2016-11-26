@@ -1,0 +1,10 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="xmaths-lib:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/xmaths_lib_jar</output-path>
+    <root id="archive" name="xmaths-lib.jar">
+      <element id="module-output" name="xmaths-lib" />
+      <element id="extracted-dir" path="$USER_HOME$/.ivy2/cache/org.scala-lang/scala-library/jars/scala-library-2.12.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/.ivy2/cache/org.apache.commons/commons-math3/jars/commons-math3-3.2.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>
