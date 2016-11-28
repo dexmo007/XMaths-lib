@@ -5,16 +5,17 @@ import func.FuncUtils.MathString
 /**
   * Created by Henrik on 6/20/2016.
   */
-case class Polynomial(scls: BigDecimal*) extends Function {
+case class Polynomial(private val _scales: BigDecimal*) extends Function {
 
   var scales: Array[BigDecimal] = {
-    if (scls.isEmpty) {
+    if (_scales.isEmpty) {
       Array(0)
     } else {
-      scls.toArray
+      _scales.toArray
     }
   }
 
+  // todo calculate dynamically - reverse iterate scalars until the scalar is not zero
   var level: Int = scales.length - 1
 
   def get(x: BigDecimal): BigDecimal = {
@@ -26,7 +27,7 @@ case class Polynomial(scls: BigDecimal*) extends Function {
   }
 
   override def scale(factor: BigDecimal) {
-    scales = scales.map(x => factor * x)
+    scales = scales.map(_ * factor)
   }
 
   override def scaled(factor: BigDecimal) = Polynomial(scales.map(_ * factor): _*)
