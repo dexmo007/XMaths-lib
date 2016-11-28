@@ -20,6 +20,8 @@ case class ArccotangentFunction private[func](scale: BigDecimal) extends Functio
     scl *= factor
   }
 
+  override def scaled(factor: BigDecimal) = ArccotangentFunction(scl * factor)
+
   override def antiderive(c: BigDecimal): Function = {
     Function.linear(scl) * ArccotangentFunction(1) + Function.ln(scl / 2).of(Polynomial(1, 0, 1))
   }

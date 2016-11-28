@@ -239,12 +239,11 @@ object FunctionParser {
       }
       i += 1
     }
-    println(factors)
     var reduced = factors.head
     for (i <- ops.indices) {
       ops(i) match {
-        case '/' => reduced = reduced / factors(i + 1)
-        case '*' => reduced = reduced * factors(i + 1)
+        case '/' => reduced /= factors(i + 1)
+        case '*' => reduced *= factors(i + 1)
       }
     }
     reduced
@@ -256,20 +255,36 @@ object FunctionParser {
         val reduced = p1.scales.zip(p2.scales).map(x => x._1 + x._2)
         Polynomial(reduced: _*)
       case _ =>
-        f1 * f2
+        f1 + f2
     }
   }
 
   def parse(s: String): Function = {
     val str = s.loseRedundant
-    // todo filter for polynomials -> reduce all poly, then add other as combinedFunc
-    val addends = new ListBuffer[Function]()
-    for (elem <- str.splitAddends) {
-      addends += parseAddend(elem)
+    var function: Function = null
+    var polynomial = Polynomial()
+    for (rawAddend <- str.splitAddends) {
+      parseAddend(rawAddend) match {
+        // todo reduce all occurrences of one function individually, work on solution for that
+        case p: Polynomial => polynomial += p
+        case f: Function =>
+          if (function == null)
+            function = f
+          else
+            function += f
+      }
     }
-    addends.reduce((f1, f2) => add(f1, f2))
+    if (function == null)
+      polynomial
+    else
+      function + polynomial
   }
 
+  /**
+    * @param s    reference to string
+    * @param open index of open-parentheses
+    * @return index of the corresponding close parentheses
+    */
   private def findCloseParen(s: String, open: Int): Int = {
     val stack = new mutable.Stack[Char]
     var i = open
@@ -342,6 +357,7 @@ object FunctionParser {
     sum
   }
 
+  // todo rm
   def checkString(s: String): Unit = {
     // todo incomplete
     for (c <- s) {
@@ -392,8 +408,10 @@ object FunctionParser {
     }
   }
 
+  // todo as map
   def getFunction(symbol: String): (BigDecimal) => Function = {
-    symbol match {
+    val s = symbol.toLowerCase
+    s match {
       case "ln" => (scale: BigDecimal) => Function.ln(scale)
       case "exp" => (scale: BigDecimal) => Function.exp(scale)
       case "sin" => (scale: BigDecimal) => Function.sin(scale)

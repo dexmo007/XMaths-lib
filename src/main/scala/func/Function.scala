@@ -7,13 +7,13 @@ import func.trig._
 /**
   * Created by Henrik on 6/20/2016.
   */
-trait Function {
+trait Function extends Cloneable {
 
   def get(x: BigDecimal): BigDecimal
 
-  def get(x: Int): BigDecimal = get(BigDecimal(x))
-
   def scale(factor: BigDecimal)
+
+  def scaled(factor: BigDecimal) : Function
 
   def derive(): Function
 
@@ -98,7 +98,6 @@ object Function {
   def log10(): Function = LogBaseFunction(10, 1)
 
   def logb(base: Int, scale: BigDecimal) = LogBaseFunction(base, scale)
-
 
   def logb(base: Int): Function = LogBaseFunction(base, 1)
 

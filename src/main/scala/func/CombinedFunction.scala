@@ -47,6 +47,14 @@ case class CombinedFunction private[func](function1: Function, operator: Operato
     }
   }
 
+  override def scaled(factor: BigDecimal) = operator match {
+    case Operator.PLUS | Operator.MINUS =>
+      CombinedFunction(function1.scaled(factor), operator, function2.scaled(factor))
+    case Operator.TIMES | Operator.DIVIDED_BY =>
+      // todo scale the one that already has a scale of != 1 or 0
+      CombinedFunction(function1.scaled(factor), operator, function2)
+  }
+
   /**
     * antiderives sums of functions, not possible for product/quotient of functions
     *
@@ -62,8 +70,6 @@ case class CombinedFunction private[func](function1: Function, operator: Operato
       case Operator.TIMES | Operator.DIVIDED_BY => ???
     }
   }
-
-  override def get(x: Int): BigDecimal = super.get(x)
 
   override def toString: String = {
     var res = operator match {

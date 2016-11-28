@@ -21,6 +21,8 @@ case class ArctangentFunction private[func](scale: BigDecimal) extends Function 
     scl *= factor
   }
 
+  override def scaled(factor: BigDecimal) = ArctangentFunction(scl * factor)
+
   override def antiderive(c: BigDecimal): Function = {
     Function.linear(scl) * ArctangentFunction(1) - Function.ln(scl / 2).of(Polynomial(1, 0, 1)) + c
   }

@@ -22,6 +22,8 @@ case class LnFunction private[func](scale: BigDecimal) extends Function {
     scaleFactor *= factor
   }
 
+  override def scaled(factor: BigDecimal) = LnFunction(scaleFactor * factor)
+
   override def antiderive(c: BigDecimal): Function = {
     Function.linear(scaleFactor) * (LnFunction(1) - 1) + c
   }

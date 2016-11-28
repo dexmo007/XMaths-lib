@@ -7,9 +7,7 @@ import org.apache.commons.math3.fraction.Fraction
   */
 object FuncUtils {
 
-  def toFraction(num: BigDecimal): String = {
-    new Fraction(num.toDouble, 1e-15, 100).toString
-  }
+  def toFraction(num: BigDecimal): String = new Fraction(num.toDouble, 1e-15, 100).toString
 
   def removeRedundantBraces(s: String): String = {
     var res = s
@@ -52,11 +50,10 @@ object FuncUtils {
         num.toInt.toString
       } else {
         val frac = new Fraction(num.toDouble, 1e-15, 100)
-        if (frac.getDenominator > 1000) {
+        if (frac.getDenominator > 1000)
           num.toString
-        } else {
+        else
           frac.toString.replaceAll(" ", "")
-        }
       }
     }
 

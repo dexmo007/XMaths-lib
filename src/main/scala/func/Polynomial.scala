@@ -29,6 +29,8 @@ case class Polynomial(scls: BigDecimal*) extends Function {
     scales = scales.map(x => factor * x)
   }
 
+  override def scaled(factor: BigDecimal) = Polynomial(scales.map(_ * factor): _*)
+
   override def derive(): Function = {
     val buf = scales.toBuffer
     for (i <- 2 to level) {
@@ -47,15 +49,10 @@ case class Polynomial(scls: BigDecimal*) extends Function {
     Polynomial(buf: _*)
   }
 
-  def isLinear: Boolean = {
-    if (level <= 1) return true
-    for (i <- 2 to level) {
-      if (scales(i) != 0) {
-        return false
-      }
-    }
-    true
-  }
+  def isConst: Boolean = level == 0 || scales.drop(1).forall(n => n == 0)
+
+  // todo move to function trait and change adequately
+  def isLinear: Boolean = level < 2 || scales.drop(2).forall(n => n == 0)
 
   def getFirstEffectiveScale: BigDecimal = {
     for (scale <- scales) {
@@ -66,6 +63,40 @@ case class Polynomial(scls: BigDecimal*) extends Function {
     0
   }
 
+  override def +(that: Function): Function = that match {
+    case p: Polynomial => this + p
+    case _ => super.+(that)
+  }
+
+  def +(that: Polynomial): Polynomial = {
+    val merged = this.scales.zipAll(that.scales, BigDecimal(0), BigDecimal(0)).map({ case (x, y) => x + y })
+    Polynomial(merged: _*)
+  }
+
+  def -(that: Polynomial): Polynomial = {
+    val merged = this.scales.zipAll(that.scales, BigDecimal(0), BigDecimal(0)).map({ case (x, y) => x - y })
+    Polynomial(merged: _*)
+  }
+
+  override def -(that: Function): Function = that match {
+    case p: Polynomial => this - p
+    case _ => super.+(that)
+  }
+
+  override def *(that: Function): Function = {
+    if (this.isConst) {
+      that.scaled(this.scales(0))
+    } else {
+      that match {
+        case p: Polynomial =>
+          if (p.isConst)
+            this.scaled(p.scales(0))
+          else
+            super.*(that)
+        case _ => super.*(that)
+      }
+    }
+  }
 
   override def toString: String = {
     val sb = StringBuilder.newBuilder

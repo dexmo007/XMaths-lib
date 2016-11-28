@@ -17,12 +17,14 @@ case class ConcatFunction private[func](outer: Function, inner: Function) extend
     outer.scale(factor)
   }
 
+  override def scaled(factor: BigDecimal) = ConcatFunction(outer.scaled(factor), inner)
+
   override def antiderive(c: BigDecimal): Function = ???
 
   override def toString: String = {
-    if (outer.isInstanceOf[Polynomial]) {
-      return outer.toString.replaceAll("x", "(" + inner + ")")
-    }
-    outer.toString.replaceAll("x", inner.toString)
+    if (outer.isInstanceOf[Polynomial])
+      outer.toString.replaceAll("x", "(" + inner + ")")
+    else
+      outer.toString.replaceAll("x", inner.toString)
   }
 }

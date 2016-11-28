@@ -1,6 +1,6 @@
 package func.log
 
-import func.{Function, FunctionException}
+import func.Function
 
 /**
   * Created by Henrik on 6/25/2016.
@@ -23,6 +23,8 @@ case class LogBaseFunction private[func](base: Int, scale: BigDecimal) extends F
   override def scale(factor: BigDecimal): Unit = {
     scl *= factor
   }
+
+  override def scaled(factor: BigDecimal) = LogBaseFunction(base, scl * factor)
 
   override def antiderive(c: BigDecimal): Function = ???
 }

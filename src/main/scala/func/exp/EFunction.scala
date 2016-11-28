@@ -21,11 +21,13 @@ case class EFunction private[func](function: Function, scale: BigDecimal) extend
     scl *= factor
   }
 
+  override def scaled(factor: BigDecimal): Function = EFunction(function, scl * factor)
+
   /**
     * anti-derives the function using chain rule only if inner function is linear, else exception is thrown
     *
     * @param c integration constant
-    * @return anti-derivitive
+    * @return anti-derivative
     */
   override def antiderive(c: BigDecimal): Function = {
     if (!function.isInstanceOf[Polynomial]) throw new UnsupportedOperationException

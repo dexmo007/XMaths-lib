@@ -30,6 +30,12 @@ case class Func2Pow private[func](function: Function, n: Int) extends Function {
     scaleFactor *= factor
   }
 
+  override def scaled(factor: BigDecimal) = {
+    val scaled = Func2Pow(function, n)
+    scaled.scale(scaleFactor * factor)
+    scaled
+  }
+
   /**
     * antiderives the function using chain rule
     *

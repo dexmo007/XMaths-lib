@@ -22,6 +22,8 @@ case class SineFunction private[func](scale: BigDecimal) extends Function {
     scaleFactor *= factor
   }
 
+  override def scaled(factor: BigDecimal) = SineFunction(scaleFactor * factor)
+
   override def antiderive(c: BigDecimal): Function = {
     Function.cos(-scaleFactor) + c
   }

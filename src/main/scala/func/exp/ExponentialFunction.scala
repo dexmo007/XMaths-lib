@@ -23,6 +23,8 @@ case class ExponentialFunction private[func](base: BigDecimal, inner: Function, 
     scl *= factor
   }
 
+  override def scaled(factor: BigDecimal) = ExponentialFunction(base, inner, scl * factor)
+
   override def antiderive(c: BigDecimal): Function = {
     if (!inner.isInstanceOf[Polynomial]) throw new UnsupportedOperationException
     val func = inner.asInstanceOf[Polynomial]

@@ -23,6 +23,8 @@ case class TangentFunction private[func](scale: BigDecimal) extends Function {
     scaleFactor *= factor
   }
 
+  override def scaled(factor: BigDecimal) = TangentFunction(scaleFactor * factor)
+
   override def antiderive(c: BigDecimal): Function = {
     LnFunction(scaleFactor).of(MethodFunction(x => Math.abs(Math.cos(x.toDouble))))
   }
