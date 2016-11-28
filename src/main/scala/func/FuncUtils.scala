@@ -4,6 +4,7 @@ import org.apache.commons.math3.fraction.Fraction
 
 /**
   * Created by Henrik on 7/11/2016.
+  * todo move implicits to function object?
   */
 object FuncUtils {
 
@@ -12,6 +13,7 @@ object FuncUtils {
   def removeRedundantBraces(s: String): String = {
     var res = s
     var i = 0
+    // todo use findCloseParen
     while (res.indexOf("(", i) != -1) {
       if (res.indexOf(")", i) == i + 2 && i > 0 && !res(i - 1).isLetter) {
         res = res.substring(0, i) + res(i + 1) + res.substring(i + 3)

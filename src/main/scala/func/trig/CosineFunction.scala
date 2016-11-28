@@ -1,34 +1,26 @@
 package func.trig
 
 import func.FuncUtils.MathString
-import func.Function
+import func.{Function, ScalableFunction}
 
 /**
   * Created by Henrik on 6/25/2016.
   */
-case class CosineFunction private[func](scale: BigDecimal) extends Function {
-
-  var scaleFactor: BigDecimal = scale
+case class CosineFunction private[func]() extends ScalableFunction {
 
   override def get(x: BigDecimal): BigDecimal = {
-    scaleFactor * Math.cos(x.toDouble)
+    scalar * Math.cos(x.toDouble)
   }
 
   override def derive(): Function = {
-    Function.sin(-scaleFactor)
+    Function.sin(-scalar)
   }
-
-  override def scale(factor: BigDecimal): Unit = {
-    scaleFactor *= factor
-  }
-
-  override def scaled(factor: BigDecimal) = CosineFunction(scaleFactor * factor)
 
   override def antiderive(c: BigDecimal): Function = {
-    Function.sin(scaleFactor) + c
+    Function.sin(scalar) + c
   }
 
   override def toString: String = {
-    scaleFactor.toScalarString + "cos(x)"
+    scalar.toScalarString + "cos(x)"
   }
 }

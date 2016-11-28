@@ -1,29 +1,21 @@
 package func.trig
 
-import func.{Function, Polynomial}
+import func.{Function, Polynomial, ScalableFunction}
 
 /**
   * Created by Henrik on 6/27/2016.
   */
-case class ArcsineFunction private[func](scale: BigDecimal) extends Function {
-
-  var scl: BigDecimal = scale
+case class ArcsineFunction private[func]() extends ScalableFunction {
 
   override def get(x: BigDecimal): BigDecimal = {
-    scl * Math.asin(x.toDouble)
+    scalar * Math.asin(x.toDouble)
   }
 
   override def derive(): Function = {
-    scl / Function.sqrt().of(Polynomial(1, 0, -1))
+    scalar / Function.sqrt().of(Polynomial(1, 0, -1))
   }
-
-  override def scale(factor: BigDecimal): Unit = {
-    scl *= factor
-  }
-
-  override def scaled(factor: BigDecimal) = ArcsineFunction(scl * factor)
 
   override def antiderive(c: BigDecimal): Function = {
-    Function.linear(scl) * ArcsineFunction(1) + Function.sqrt(scl).of(Polynomial(1, 0, -1))
+    Function.linear(scalar) * ArcsineFunction() + Function.sqrt(scalar).of(Polynomial(1, 0, -1))
   }
 }

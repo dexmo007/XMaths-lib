@@ -1,31 +1,22 @@
 package func.trig
 
-import func.Function
-import func.MethodFunction
+import func.{Function, MethodFunction, ScalableFunction}
 import func.log.LnFunction
 
 /**
   * Created by Henrik on 6/25/2016.
   */
-case class TangentFunction private[func](scale: BigDecimal) extends Function {
-
-  var scaleFactor: BigDecimal = scale
+case class TangentFunction private[func]() extends ScalableFunction {
 
   override def get(x: BigDecimal): BigDecimal = {
-    scaleFactor * Math.tan(x.toDouble)
+    scalar * Math.tan(x.toDouble)
   }
 
   override def derive(): Function = {
-    scaleFactor / Function.cos().pow(2)
+    scalar / Function.cos().pow(2)
   }
-
-  override def scale(factor: BigDecimal): Unit = {
-    scaleFactor *= factor
-  }
-
-  override def scaled(factor: BigDecimal) = TangentFunction(scaleFactor * factor)
 
   override def antiderive(c: BigDecimal): Function = {
-    LnFunction(scaleFactor).of(MethodFunction(x => Math.abs(Math.cos(x.toDouble))))
+    LnFunction(scalar).of(MethodFunction(x => Math.abs(Math.cos(x.toDouble))))
   }
 }

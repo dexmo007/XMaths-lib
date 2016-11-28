@@ -1,9 +1,9 @@
 package func
 
 /**
-  * Created by henri on 11/28/2016.
+  * Abstract class for a function that is scaled by a preceding scalar
   */
-abstract class ScalableFunction(private var _scalar: BigDecimal) extends Function {
+abstract class ScalableFunction(private var _scalar: BigDecimal = 1) extends Function {
 
   def scalar: BigDecimal = _scalar
 
@@ -16,5 +16,4 @@ abstract class ScalableFunction(private var _scalar: BigDecimal) extends Functio
     scaled.scale(factor)
     scaled
   }
-
 }

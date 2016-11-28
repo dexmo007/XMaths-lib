@@ -37,3 +37,7 @@ case class RootFunction private[func](n: BigDecimal) extends ScalableFunction(1)
       s"$scalar * ${n}thrt(x)"
   }
 }
+
+object RootFunction {
+  def apply(n: BigDecimal, scalar: BigDecimal): RootFunction = RootFunction(n).scaled(scalar).asInstanceOf[RootFunction]
+}

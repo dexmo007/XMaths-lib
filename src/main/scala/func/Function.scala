@@ -13,7 +13,7 @@ trait Function extends Cloneable {
 
   def scale(factor: BigDecimal)
 
-  def scaled(factor: BigDecimal) : Function
+  def scaled(factor: BigDecimal): Function
 
   def derive(): Function
 
@@ -30,28 +30,27 @@ trait Function extends Cloneable {
     toString
   }
 
-  def +(that: Function): Function = {
-    CombinedFunction(this, Operator.PLUS, that)
-  }
+  // todo override operators in subclasses to perform senseful addition
+  def +(that: Function): Function = CombinedFunction(this, Operator.PLUS, that)
 
-  def -(that: Function): Function = {
-    CombinedFunction(this, Operator.MINUS, that)
-  }
+  def -(that: Function): Function = CombinedFunction(this, Operator.MINUS, that)
 
-  def *(that: Function): Function = {
-    CombinedFunction(this, Operator.TIMES, that)
-  }
+  def *(that: Function): Function = CombinedFunction(this, Operator.TIMES, that)
 
-  def /(that: Function): Function = {
-    CombinedFunction(this, Operator.DIVIDED_BY, that)
-  }
+  def *(factor: BigDecimal): Function = this.scaled(factor)
 
-  def pow(n: Int): Function = {
-    Func2Pow(this, n)
-  }
+  def /(that: Function): Function = CombinedFunction(this, Operator.DIVIDED_BY, that)
 
-  def of(inner: Function): Function = {
-    ConcatFunction(this, inner)
+  def /(div: BigDecimal): Function = this.scaled(1 / div)
+
+  def pow(n: Int): Function = Func2Pow(this, n)
+
+  def of(inner: Function): Function = ConcatFunction(this, inner)
+
+  implicit class ScalarBigDecimal(bd: BigDecimal) {
+    def *(that: Function): Function = that.scaled(bd)
+
+    def /(that: Function): Function = that.scaled(1 / bd)
   }
 }
 
@@ -75,7 +74,7 @@ object Function {
 
   def tan(scale: BigDecimal): Function = TangentFunction(scale)
 
-  def tan(): Function = TangentFunction(1)
+  def tan(): Function = TangentFunction()
 
   def atan(scale: BigDecimal): Function = ArctangentFunction(scale)
 
