@@ -1,38 +1,28 @@
 package func.exp
 
-import func.{Function, Polynomial}
+import func.{Function, Polynomial, ScalableFunction}
 
 /**
   * Created by Henrik on 6/27/2016.
   */
-case class ExponentialFunction private[func](base: BigDecimal, inner: Function, scale: BigDecimal) extends Function {
-
-  var scl: BigDecimal = scale
+case class ExponentialFunction private[func](base: BigDecimal, inner: Function) extends ScalableFunction {
 
   override def get(x: BigDecimal): BigDecimal = {
-    scl * Math.pow(base.toDouble, inner.get(x).toDouble)
+    scalar * Math.pow(base.toDouble, inner.get(x).toDouble)
   }
 
-  override def derive(): Function = {
-    val innerDeriv: Function = inner.derive()
-    innerDeriv.scale(Math.log(base.toDouble))
-    innerDeriv * this
-  }
+  override def derive(): Function = inner.derive() * Math.log(base.toDouble) * this
 
-  override def scale(factor: BigDecimal): Unit = {
-    scl *= factor
-  }
+  override def antiderive(c: BigDecimal): Function = inner match {
+    case p: Polynomial =>
+      if (!p.isLinear)
+        throw new UnsupportedOperationException
 
-  override def scaled(factor: BigDecimal) = ExponentialFunction(base, inner, scl * factor)
-
-  override def antiderive(c: BigDecimal): Function = {
-    if (!inner.isInstanceOf[Polynomial]) throw new UnsupportedOperationException
-    val func = inner.asInstanceOf[Polynomial]
-    if (!func.isLinear) throw new UnsupportedOperationException
-    if (func.scales(1) == 0) {
-      Polynomial(c, scl * Math.pow(base.toDouble, func.scales(0).toDouble))
-    } else {
-      ExponentialFunction(base, inner, scl / (func.scales(1) * Math.log(base.toDouble)))
-    }
+      if (p.scales(1) == 0) {
+        Polynomial(c, scalar * Math.pow(base.toDouble, p.scales(0).toDouble))
+      } else {
+        ExponentialFunction(base, inner) * (scalar / (p.scales(1) * Math.log(base.toDouble)))
+      }
+    case _ => throw new UnsupportedOperationException
   }
 }

@@ -426,7 +426,7 @@ object FunctionParser {
     }
   }
 
-  case class FunctionParseException(msg: String = "") extends Exception(msg)
+  case class FunctionParseException(message: String = "") extends FunctionException(message)
 
   def main(args: Array[String]) {
     println(parseAddend("pi*sin(x)"))

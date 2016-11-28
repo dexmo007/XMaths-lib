@@ -30,7 +30,7 @@ trait Function extends Cloneable {
     toString
   }
 
-  // todo override operators in subclasses to perform senseful addition
+  // todo override operators in subclasses to perform fitting addition procedure
   def +(that: Function): Function = CombinedFunction(this, Operator.PLUS, that)
 
   def -(that: Function): Function = CombinedFunction(this, Operator.MINUS, that)
@@ -49,108 +49,109 @@ trait Function extends Cloneable {
 
   implicit class ScalarBigDecimal(bd: BigDecimal) {
     def *(that: Function): Function = that.scaled(bd)
-
-    def /(that: Function): Function = that.scaled(1 / bd)
   }
+
 }
 
 object Function {
 
-  def cos(scale: BigDecimal): Function = CosineFunction(scale)
+  def cos(scale: BigDecimal): Function = CosineFunction() * scale
 
-  def cos(): Function = CosineFunction(1)
+  def cos(): Function = CosineFunction()
 
-  def acos(scale: BigDecimal): Function = ArccosineFunction(scale)
+  def acos(scale: BigDecimal): Function = ArccosineFunction() * scale
 
-  def acos(): Function = ArccosineFunction(1)
+  def acos(): Function = ArccosineFunction()
 
-  def sin(scale: BigDecimal): Function = SineFunction(scale)
+  def sin(scale: BigDecimal): Function = SineFunction() * scale
 
-  def sin(): Function = SineFunction(1)
+  def sin(): Function = SineFunction()
 
-  def asin(scale: BigDecimal): Function = ArcsineFunction(scale)
+  def asin(scale: BigDecimal): Function = ArcsineFunction() * scale
 
-  def asin(): Function = ArcsineFunction(1)
+  def asin(): Function = ArcsineFunction()
 
-  def tan(scale: BigDecimal): Function = TangentFunction(scale)
+  def tan(scale: BigDecimal): Function = TangentFunction() * scale
 
   def tan(): Function = TangentFunction()
 
-  def atan(scale: BigDecimal): Function = ArctangentFunction(scale)
+  def atan(scale: BigDecimal): Function = ArctangentFunction() * scale
 
-  def atan(): Function = ArctangentFunction(1)
+  def atan(): Function = ArctangentFunction()
 
-  def cot(scale: BigDecimal): Function = scale / TangentFunction(1)
+  def cot(scale: BigDecimal): Function = scale / TangentFunction()
 
-  def cot(): Function = 1 / TangentFunction(1)
+  def cot(): Function = 1 / TangentFunction()
 
-  def acot(scale: BigDecimal): Function = ArccotangentFunction(scale)
+  def acot(scale: BigDecimal): Function = ArccotangentFunction() * scale
 
-  def acot(): Function = ArccotangentFunction(1)
+  def acot(): Function = ArccotangentFunction()
 
-  def ln(scale: BigDecimal): Function = LnFunction(scale)
+  def ln(scale: BigDecimal): Function = LnFunction() * scale
 
-  def ln(): Function = LnFunction(1)
+  def ln(): Function = LnFunction()
 
-  def log10(scale: BigDecimal): Function = LogBaseFunction(10, scale)
+  def log10(scale: BigDecimal): Function = LogBaseFunction(10) * scale
 
-  def log10(): Function = LogBaseFunction(10, 1)
+  def log10(): Function = LogBaseFunction(10)
 
-  def logb(base: Int, scale: BigDecimal) = LogBaseFunction(base, scale)
+  def logb(base: Int, scale: BigDecimal): Function = LogBaseFunction(base) * scale
 
-  def logb(base: Int): Function = LogBaseFunction(base, 1)
+  def logb(base: Int): Function = LogBaseFunction(base)
 
   def linear(b: BigDecimal, a: BigDecimal): Function = Polynomial(b, a)
 
   def linear(a: BigDecimal): Function = Polynomial(0, a)
 
+  def linear(): Function = Polynomial(0, 1)
+
   def const(c: BigDecimal): Function = Polynomial(c)
 
-  def toPolynomial(scls: Array[BigDecimal]): Function = Polynomial(scls: _*)
+  def toPolynomial(scalars: Array[BigDecimal]): Function = Polynomial(scalars: _*)
 
-  def toPolynomial(scls: Array[Double]): Function = Polynomial(scls.map(d => BigDecimal(d)): _*)
+  def toPolynomial(scalars: Array[Double]): Function = Polynomial(scalars.map(d => BigDecimal(d)): _*)
 
-  def toPolynomial(scls: Array[Int]): Function = Polynomial(scls.map(i => BigDecimal(i)): _*)
+  def toPolynomial(scalars: Array[Int]): Function = Polynomial(scalars.map(i => BigDecimal(i)): _*)
 
-  def polynomial(scls: BigDecimal*): Function = Polynomial(scls: _*)
+  def polynomial(scalars: BigDecimal*): Function = Polynomial(scalars: _*)
 
-  def xToN(scale: BigDecimal, n: Int): Function = {
+  def xToN(scalar: BigDecimal, n: Int): Function = {
     val scales = Array.fill[BigDecimal](n + 1)(0)
-    scales(n) = scale
+    scales(n) = scalar
     toPolynomial(scales)
   }
 
   def from(method: (BigDecimal) => BigDecimal): Function = MethodFunction(method)
 
-  def sqrt(scale: BigDecimal): Function = RootFunction(2, scale)
+  def sqrt(scale: BigDecimal): Function = RootFunction(2) * scale
 
-  def sqrt(): Function = RootFunction(2, 1)
+  def sqrt(): Function = RootFunction(2)
 
-  def cbrt(scale: BigDecimal): Function = RootFunction(3, scale)
+  def cbrt(scale: BigDecimal): Function = RootFunction(3) * scale
 
-  def cbrt(): Function = RootFunction(3, 1)
+  def cbrt(): Function = RootFunction(3)
 
-  def nthRoot(n: BigDecimal, scale: BigDecimal): Function = RootFunction(n, scale)
+  def nthRoot(n: BigDecimal, scale: BigDecimal): Function = RootFunction(n) * scale
 
-  def nthRoot(n: BigDecimal): Function = RootFunction(n, 1)
+  def nthRoot(n: BigDecimal): Function = RootFunction(n)
 
-  def exp(scale: BigDecimal, function: Function): Function = EFunction(function, scale)
+  def exp(scale: BigDecimal, function: Function): Function = EFunction(function) * scale
 
-  def exp(function: Function): Function = EFunction(function, 1)
+  def exp(function: Function): Function = EFunction(function)
 
-  def exp(scale: BigDecimal): Function = EFunction(linear(1), scale)
+  def exp(scale: BigDecimal): Function = EFunction(linear()) * scale
 
-  def exp(): Function = EFunction(linear(1), 1)
+  def exp(): Function = EFunction(linear())
 
-  def expb(scale: BigDecimal, base: BigDecimal, function: Function): Function = ExponentialFunction(base, function, scale)
+  def expb(scale: BigDecimal, base: BigDecimal, function: Function): Function = ExponentialFunction(base, function) * scale
 
-  def expb(scale: BigDecimal, base: BigDecimal): Function = ExponentialFunction(base, linear(1), scale)
+  def expb(scale: BigDecimal, base: BigDecimal): Function = ExponentialFunction(base, linear()) * scale
 
-  def expb(base: BigDecimal, function: Function): Function = ExponentialFunction(base, function, 1)
+  def expb(base: BigDecimal, function: Function): Function = ExponentialFunction(base, function)
 
-  def expb(base: BigDecimal): Function = ExponentialFunction(base, linear(1), 1)
+  def expb(base: BigDecimal): Function = ExponentialFunction(base, linear())
 
-  implicit def bigDecimalToPolynom(num: BigDecimal): Function = Polynomial(num)
+  implicit def bigDecimalToPolynomial(num: BigDecimal): Function = Polynomial(num)
 
-  implicit def intToPolynom(num: Int): Function = Polynomial(num)
+  implicit def intToPolynomial(num: Int): Function = Polynomial(num)
 }

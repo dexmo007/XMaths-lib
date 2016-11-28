@@ -17,6 +17,6 @@ case class TangentFunction private[func]() extends ScalableFunction {
   }
 
   override def antiderive(c: BigDecimal): Function = {
-    LnFunction(scalar).of(MethodFunction(x => Math.abs(Math.cos(x.toDouble))))
+    LnFunction() * scalar of MethodFunction(x => Math.abs(Math.cos(x.toDouble)))
   }
 }

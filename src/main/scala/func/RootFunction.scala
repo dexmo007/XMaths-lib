@@ -5,7 +5,7 @@ import scala.math.BigDecimal
 /**
   * Created by Henrik on 6/25/2016.
   */
-case class RootFunction private[func](n: BigDecimal) extends ScalableFunction(1) {
+case class RootFunction private[func](n: BigDecimal) extends ScalableFunction {
 
   require(n != 0, "0th root does not exist!")
 
@@ -36,8 +36,4 @@ case class RootFunction private[func](n: BigDecimal) extends ScalableFunction(1)
     else
       s"$scalar * ${n}thrt(x)"
   }
-}
-
-object RootFunction {
-  def apply(n: BigDecimal, scalar: BigDecimal): RootFunction = RootFunction(n).scaled(scalar).asInstanceOf[RootFunction]
 }

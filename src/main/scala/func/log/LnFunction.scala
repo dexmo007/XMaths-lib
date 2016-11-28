@@ -1,40 +1,25 @@
 package func.log
 
-import func.Function
+import func.{Function, ScalableFunction}
+import func.FuncUtils.MathString
 
 /**
   * Created by Henrik on 6/25/2016.
   */
-case class LnFunction private[func](scale: BigDecimal) extends Function {
-
-  var scaleFactor: BigDecimal = scale
+case class LnFunction private[func]() extends ScalableFunction {
 
   override def get(x: BigDecimal): BigDecimal = {
     require(x > 0, "ln(" + x + ") is undefined!")
-    scaleFactor * Math.log(x.toDouble)
+    scalar * Math.log(x.toDouble)
   }
 
   override def derive(): Function = {
-    Function.const(scaleFactor) / Function.linear(1)
+    Function.const(scalar) / Function.linear(1)
   }
-
-  override def scale(factor: BigDecimal): Unit = {
-    scaleFactor *= factor
-  }
-
-  override def scaled(factor: BigDecimal) = LnFunction(scaleFactor * factor)
 
   override def antiderive(c: BigDecimal): Function = {
-    Function.linear(scaleFactor) * (LnFunction(1) - 1) + c
+    Function.linear(scalar) * (LnFunction() - 1) + c
   }
 
-  override def toString: String = {
-    if (scaleFactor == 1) {
-      "ln(x)"
-    } else if (scaleFactor == -1) {
-      "-ln(x)"
-    } else {
-      scaleFactor + "*ln(x)"
-    }
-  }
+  override def toString: String = scalar.toScalarString + "ln(x)"
 }

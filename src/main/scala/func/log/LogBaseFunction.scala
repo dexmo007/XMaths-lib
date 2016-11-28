@@ -14,8 +14,9 @@ case class LogBaseFunction private[func](base: Int) extends ScalableFunction {
     scalar * Math.log(x.toDouble) / Math.log(base)
   }
 
+  // todo check if correct?
   override def derive(): Function = {
-    Function.const(scalar) / Function.linear(Math.log(base))
+    scalar / Function.linear(Math.log(base))
   }
 
   override def antiderive(c: BigDecimal): Function = ???

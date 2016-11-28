@@ -10,19 +10,17 @@ import func.Operator.Operator
   */
 case class CombinedFunction private[func](function1: Function, operator: Operator, function2: Function) extends Function {
 
-  override def get(x: BigDecimal): BigDecimal = {
-    operator match {
-      case Operator.PLUS => function1.get(x) + function2.get(x)
-      case Operator.MINUS => function1.get(x) - function2.get(x)
-      case Operator.TIMES => function1.get(x) * function2.get(x)
-      case Operator.DIVIDED_BY => function1.get(x) / function2.get(x)
-    }
+  override def get(x: BigDecimal): BigDecimal = operator match {
+    case Operator.PLUS => function1.get(x) + function2.get(x)
+    case Operator.MINUS => function1.get(x) - function2.get(x)
+    case Operator.TIMES => function1.get(x) * function2.get(x)
+    case Operator.DIVIDED_BY => function1.get(x) / function2.get(x)
   }
 
   /**
     * derives the function using sum, product and quotient rule
     *
-    * @return derivitive
+    * @return derivative
     */
   override def derive(): Function = {
     operator match {
@@ -47,7 +45,7 @@ case class CombinedFunction private[func](function1: Function, operator: Operato
     }
   }
 
-  override def scaled(factor: BigDecimal) = operator match {
+  override def scaled(factor: BigDecimal): CombinedFunction = operator match {
     case Operator.PLUS | Operator.MINUS =>
       CombinedFunction(function1.scaled(factor), operator, function2.scaled(factor))
     case Operator.TIMES | Operator.DIVIDED_BY =>

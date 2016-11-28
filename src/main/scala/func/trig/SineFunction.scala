@@ -24,6 +24,12 @@ case class SineFunction private[func]() extends ScalableFunction {
     scalar.toScalarString + "sin(x)"
   }
 
+
+  override def +(that: Function): Function = that match {
+    case _: SineFunction => this * 2
+    case _ => super.+(that)
+  }
+
   override def equals(obj: scala.Any): Boolean = obj match {
     case sine: SineFunction =>
       // a*sin(x)=b*sin(x), if a=b
