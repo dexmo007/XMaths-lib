@@ -16,4 +16,6 @@ abstract class ScalableFunction(private var _scalar: BigDecimal = 1) extends Fun
     scaled.scale(factor)
     scaled
   }
+
+  override def constValue: Option[BigDecimal] = if (scalar == 0) Some(0) else None
 }

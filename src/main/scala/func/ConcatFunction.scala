@@ -19,7 +19,10 @@ case class ConcatFunction private[func](outer: Function, inner: Function) extend
 
   override def scaled(factor: BigDecimal) = ConcatFunction(outer.scaled(factor), inner)
 
+  // todo possible? if not throw unsupported
   override def antiderive(c: BigDecimal): Function = ???
+
+  override def constValue: Option[BigDecimal] = if (outer.isConst) outer.constValue else inner.constValue
 
   override def toString: String = {
     if (outer.isInstanceOf[Polynomial])

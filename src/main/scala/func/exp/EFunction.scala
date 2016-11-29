@@ -4,9 +4,10 @@ import func.{Function, Polynomial, ScalableFunction}
 
 /**
   * Created by Henrik on 6/27/2016.
+  *
   */
 case class EFunction private[func](function: Function) extends ScalableFunction {
-
+  //todo make EFunction extend LogBade(E), but override derive and maybe antiDerive, maybe constValue?
   override def get(x: BigDecimal): BigDecimal = {
     scalar * Math.pow(Math.E, function.get(x).toDouble)
   }
@@ -25,6 +26,12 @@ case class EFunction private[func](function: Function) extends ScalableFunction 
     if (!function.isInstanceOf[Polynomial]) throw new UnsupportedOperationException
     val func = function.asInstanceOf[Polynomial]
     if (!func.isLinear) throw new UnsupportedOperationException
-    EFunction(function) * (func.scales(1) * scalar) + c
+    EFunction(function) * (func.scalars(1) * scalar) + c
+  }
+
+  override def constValue: Option[BigDecimal] = {
+    if (function.isConst)
+      Some(scalar * Math.pow(Math.E, function.constValue.get.toDouble))
+    else super.constValue
   }
 }

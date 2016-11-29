@@ -3,7 +3,7 @@ package func
 /**
   * Created by Henrik on 6/25/2016.
   */
-case class MethodFunction private[func](method: (BigDecimal) => BigDecimal) extends ScalableFunction(1) {
+case class MethodFunction private[func](method: (BigDecimal) => BigDecimal) extends ScalableFunction {
 
   override def get(x: BigDecimal): BigDecimal = scalar * method(x)
 

@@ -7,7 +7,7 @@ import func.FuncUtils.MathString
   */
 case class Polynomial(private val _scales: BigDecimal*) extends Function {
 
-  var scales: Array[BigDecimal] = {
+  var scalars: Array[BigDecimal] = {
     if (_scales.isEmpty) {
       Array(0)
     } else {
@@ -15,25 +15,29 @@ case class Polynomial(private val _scales: BigDecimal*) extends Function {
     }
   }
 
-  // todo calculate dynamically - reverse iterate scalars until the scalar is not zero
-  var level: Int = scales.length - 1
+  def level: Int = {
+    for (i <- scalars.indices.reverse)
+      if (scalars(i) != 0)
+        return i
+    0
+  }
 
   def get(x: BigDecimal): BigDecimal = {
     var res: BigDecimal = 0
     for (k <- 0 to level) {
-      res += scales(k) * x.pow(k)
+      res += scalars(k) * x.pow(k)
     }
     res
   }
 
   override def scale(factor: BigDecimal) {
-    scales = scales.map(_ * factor)
+    scalars = scalars.map(_ * factor)
   }
 
-  override def scaled(factor: BigDecimal) = Polynomial(scales.map(_ * factor): _*)
+  override def scaled(factor: BigDecimal) = Polynomial(scalars.map(_ * factor): _*)
 
   override def derive(): Function = {
-    val buf = scales.toBuffer
+    val buf = scalars.toBuffer
     for (i <- 2 to level) {
       buf(i) *= i
     }
@@ -42,7 +46,7 @@ case class Polynomial(private val _scales: BigDecimal*) extends Function {
   }
 
   override def antiderive(c: BigDecimal): Function = {
-    val buf = scales.toBuffer
+    val buf = scalars.toBuffer
     for (i <- 0 to level) {
       buf(i) /= (i + 1)
     }
@@ -50,13 +54,16 @@ case class Polynomial(private val _scales: BigDecimal*) extends Function {
     Polynomial(buf: _*)
   }
 
-  def isConst: Boolean = level == 0 || scales.drop(1).forall(n => n == 0)
+  override def constValue: Option[BigDecimal] = {
+    if (level == 0 || scalars.drop(1).forall(n => n == 0))
+      Some(scalars(0))
+    else None
+  }
 
-  // todo move to function trait and change adequately
-  def isLinear: Boolean = level < 2 || scales.drop(2).forall(n => n == 0)
+  override def isLinear: Boolean = isConst || level < 2 || scalars.drop(2).forall(n => n == 0)
 
   def getFirstEffectiveScale: BigDecimal = {
-    for (scale <- scales) {
+    for (scale <- scalars) {
       if (scale != 0) {
         return scale
       }
@@ -70,12 +77,12 @@ case class Polynomial(private val _scales: BigDecimal*) extends Function {
   }
 
   def +(that: Polynomial): Polynomial = {
-    val merged = this.scales.zipAll(that.scales, BigDecimal(0), BigDecimal(0)).map({ case (x, y) => x + y })
+    val merged = this.scalars.zipAll(that.scalars, BigDecimal(0), BigDecimal(0)).map({ case (x, y) => x + y })
     Polynomial(merged: _*)
   }
 
   def -(that: Polynomial): Polynomial = {
-    val merged = this.scales.zipAll(that.scales, BigDecimal(0), BigDecimal(0)).map({ case (x, y) => x - y })
+    val merged = this.scalars.zipAll(that.scalars, BigDecimal(0), BigDecimal(0)).map({ case (x, y) => x - y })
     Polynomial(merged: _*)
   }
 
@@ -86,12 +93,12 @@ case class Polynomial(private val _scales: BigDecimal*) extends Function {
 
   override def *(that: Function): Function = {
     if (this.isConst) {
-      that.scaled(this.scales(0))
+      that.scaled(this.scalars(0))
     } else {
       that match {
         case p: Polynomial =>
           if (p.isConst)
-            this.scaled(p.scales(0))
+            this.scaled(p.scalars(0))
           else
             super.*(that)
         case _ => super.*(that)
@@ -101,11 +108,11 @@ case class Polynomial(private val _scales: BigDecimal*) extends Function {
 
   override def toString: String = {
     val sb = StringBuilder.newBuilder
-    if (scales(0) != 0) {
-      sb.append(scales(0))
+    if (scalars(0) != 0) {
+      sb.append(scalars(0))
     }
     for (i <- 1 to level) {
-      val scale = scales(i)
+      val scale = scalars(i)
       if (scale != 0) {
         if (scale == -1) {
           sb.append("-x")
@@ -126,11 +133,11 @@ case class Polynomial(private val _scales: BigDecimal*) extends Function {
 
   override def toTexString: String = {
     val sb = StringBuilder.newBuilder
-    if (scales(level) < 0) {
+    if (scalars(level) < 0) {
       sb.append("-")
     }
     for (i <- level to 0 by -1) {
-      val scale = scales(i)
+      val scale = scalars(i)
       if (scale != 0) {
         if (scale != 1 && scale != -1) {
           sb.append(scale.abs.toTexString)
@@ -144,7 +151,7 @@ case class Polynomial(private val _scales: BigDecimal*) extends Function {
         // todo check what happens if next scale is 0
         // append the sign for next scale
         if (i > 0) {
-          val nextScale = scales(i - 1)
+          val nextScale = scalars(i - 1)
           if (nextScale < 0) {
             sb.append("-")
           } else if (nextScale > 0) {
@@ -160,6 +167,6 @@ case class Polynomial(private val _scales: BigDecimal*) extends Function {
     if (!obj.isInstanceOf[Polynomial])
       return false
     val other = obj.asInstanceOf[Polynomial]
-    this.level == other.level && this.scales.deep == other.scales.deep
+    this.level == other.level && this.scalars.deep == other.scalars.deep
   }
 }

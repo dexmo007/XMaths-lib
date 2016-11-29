@@ -7,7 +7,7 @@ import func.{Function, ScalableFunction}
   */
 case class LogBaseFunction private[func](base: Int) extends ScalableFunction {
 
-  require(base > 0 && base != 1, "Base must not be " + base)
+  require(base > 1, "Base must not be " + base)
 
   override def get(x: BigDecimal): BigDecimal = {
     require(x > 0, "log" + base + "(" + x + ") is undefined!")

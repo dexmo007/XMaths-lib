@@ -17,14 +17,18 @@ trait Function extends Cloneable {
 
   def derive(): Function
 
-  def antiderive(c: BigDecimal): Function
-
-  def antiderive(): Function = antiderive(0)
+  def antiderive(c: BigDecimal = 0): Function
 
   def integral(upper: BigDecimal, lower: BigDecimal): BigDecimal = {
     val antideriv = antiderive()
     antideriv.get(upper) - antideriv.get(lower)
   }
+
+  def isConst: Boolean = constValue.isDefined
+
+  def constValue: Option[BigDecimal]
+
+  def isLinear: Boolean = derive().isConst
 
   def toTexString: String = {
     toString

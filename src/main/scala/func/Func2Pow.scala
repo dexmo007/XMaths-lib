@@ -5,7 +5,7 @@ import func.FuncUtils.MathString
 /**
   * Created by Henrik on 6/22/2016.
   */
-case class Func2Pow private[func](function: Function, n: Int) extends ScalableFunction(1) {
+case class Func2Pow private[func](function: Function, n: Int) extends ScalableFunction {
 
   override def get(x: BigDecimal): BigDecimal = {
     val innerX = function.get(x)
@@ -16,26 +16,25 @@ case class Func2Pow private[func](function: Function, n: Int) extends ScalableFu
   /**
     * derives the function using power rule
     *
-    * @return derivitive
+    * @return derivative
     */
   override def derive(): Function = {
     function.derive() * Func2Pow(function, n - 1).scaled(scalar * n)
   }
 
-  /**
-    * antiderives the function using chain rule
-    *
-    * @param c integration constant
-    * @return antiderivitive
-    */
-  override def antiderive(c: BigDecimal): Function = function match {
-      // todo when isLinear was removed to Function
-    case p: Polynomial =>
-      if (p.isLinear)
-        Func2Pow(function, n + 1).scaled(scalar / (n + 1)) / function.derive() + c
-      throw new UnsupportedOperationException("Antideriving only possible if inner function is linear!")
-    case _ =>
-      throw new UnsupportedOperationException("Antideriving only possible if inner function is linear!")
+  override def constValue: Option[BigDecimal] = {
+    if (n == 0)
+      Some(scalar)
+    else if (function.isConst)
+      Some(scalar * function.constValue.get.pow(n))
+    else super.constValue
+  }
+
+  override def antiderive(c: BigDecimal): Function = {
+    if (!isLinear)
+      throw new UnsupportedOperationException("can't find anti-derivative if inner function not linear")
+    // todo check if inner.constValue.get * res is needed
+    Func2Pow(function, n + 1).scaled(scalar / (n + 1)) / function.derive() + c
   }
 
   override def toString: String = {

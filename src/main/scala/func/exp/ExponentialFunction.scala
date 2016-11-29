@@ -18,11 +18,19 @@ case class ExponentialFunction private[func](base: BigDecimal, inner: Function) 
       if (!p.isLinear)
         throw new UnsupportedOperationException
 
-      if (p.scales(1) == 0) {
-        Polynomial(c, scalar * Math.pow(base.toDouble, p.scales(0).toDouble))
+      if (p.scalars(1) == 0) {
+        Polynomial(c, scalar * Math.pow(base.toDouble, p.scalars(0).toDouble))
       } else {
-        ExponentialFunction(base, inner) * (scalar / (p.scales(1) * Math.log(base.toDouble)))
+        ExponentialFunction(base, inner) * (scalar / (p.scalars(1) * Math.log(base.toDouble)))
       }
     case _ => throw new UnsupportedOperationException
+  }
+
+  override def constValue: Option[BigDecimal] = {
+    if (inner.isConst)
+      Some(scalar * Math.pow(base.toDouble, inner.constValue.get.toDouble))
+    else if (base == 0 || base == 1)
+      Some(scalar * base)
+    else super.constValue
   }
 }

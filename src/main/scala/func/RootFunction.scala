@@ -1,5 +1,7 @@
 package func
 
+import func.FuncUtils.MathString
+
 import scala.math.BigDecimal
 
 /**
@@ -27,13 +29,13 @@ case class RootFunction private[func](n: BigDecimal) extends ScalableFunction {
   }
 
   override def toString: String = {
-    if (n == 1)
-      s"$scalar * x"
+    scalar.toScalarString + (if (n == 1)
+      "x"
     else if (n == 2)
-      s"$scalar * sqrt(x)"
+      "sqrt(x)"
     else if (n == 3)
-      s"$scalar * cbrt(x)"
+      "cbrt(x)"
     else
-      s"$scalar * ${n}thrt(x)"
+      s"${n}thrt(x)")
   }
 }
