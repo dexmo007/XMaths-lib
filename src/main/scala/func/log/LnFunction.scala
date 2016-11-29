@@ -1,7 +1,7 @@
 package func.log
 
 import func.{Function, ScalableFunction}
-import func.FuncUtils.MathString
+import func.FuncUtils._
 
 /**
   * Created by Henrik on 6/25/2016.
@@ -14,12 +14,12 @@ case class LnFunction private[func]() extends ScalableFunction {
   }
 
   override def derive(): Function = {
-    Function.const(scalar) / Function.linear(1)
+    Function.const(scalar) / Function.linear()
   }
 
   override def antiderive(c: BigDecimal): Function = {
     Function.linear(scalar) * (LnFunction() - 1) + c
   }
 
-  override def toString: String = scalar.toScalarString + "ln(x)"
+  override def toString: String = scalarString + "ln(x)"
 }

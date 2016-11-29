@@ -1,8 +1,7 @@
 package func
 
-import func.FuncUtils.MathString
-
 import scala.math.BigDecimal
+import func.FuncUtils._
 
 /**
   * Created by Henrik on 6/25/2016.

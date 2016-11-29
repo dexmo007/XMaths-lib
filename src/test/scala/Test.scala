@@ -1,4 +1,4 @@
-import func.{Polynomial, RootFunction}
+import func.Function
 
 /**
   * Created by henri on 11/25/2016.
@@ -6,11 +6,7 @@ import func.{Polynomial, RootFunction}
 object Test {
 
   def main(args: Array[String]): Unit = {
-    val f1 = RootFunction(2) * 3
-    val f2 = f1.scaled(2)
-    f1.scale(3)
-    println(f1)
-    println(f2)
+    println(Function.expb(0, Function.const(1)) == Function.const(0))
   }
 
 }

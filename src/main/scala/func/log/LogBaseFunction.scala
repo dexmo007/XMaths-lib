@@ -1,6 +1,7 @@
 package func.log
 
 import func.{Function, ScalableFunction}
+import func.FuncUtils._
 
 /**
   * Created by Henrik on 6/25/2016.
@@ -19,5 +20,8 @@ case class LogBaseFunction private[func](base: Int) extends ScalableFunction {
     scalar / Function.linear(Math.log(base))
   }
 
+  // todo check if possible
   override def antiderive(c: BigDecimal): Function = ???
+
+  override def toString: String = scalarString + s"log$base(x)"
 }

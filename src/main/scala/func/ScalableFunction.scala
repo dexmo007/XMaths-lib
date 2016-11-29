@@ -1,7 +1,9 @@
 package func
 
+import func.FuncUtils.MathString
+
 /**
-  * Abstract class for a function that is scaled by a preceding scalar
+  * Abstract class for a function that is scaled by a preceding scalar, the scalar is initialized with 1, the identity scalar
   */
 abstract class ScalableFunction(private var _scalar: BigDecimal = 1) extends Function {
 
@@ -18,4 +20,6 @@ abstract class ScalableFunction(private var _scalar: BigDecimal = 1) extends Fun
   }
 
   override def constValue: Option[BigDecimal] = if (scalar == 0) Some(0) else None
+
+  def scalarString: String = scalar.toScalarString
 }

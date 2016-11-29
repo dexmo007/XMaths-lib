@@ -1,36 +1,41 @@
 package func.exp
 
-import func.{Function, Polynomial, ScalableFunction}
+import func.FuncUtils._
+import func.{FuncUtils, Function, ScalableFunction}
 
 /**
-  * Created by Henrik on 6/27/2016.
+  * Created by henri on 11/29/2016.
   */
-case class ExponentialFunction private[func](base: BigDecimal, inner: Function) extends ScalableFunction {
+abstract class ExponentialFunction(_base: BigDecimal, _inner: Function) extends ScalableFunction {
+
+  if (base == 0 && inner.isConst && inner.constValue.get == 0)
+    throw new ArithmeticException("0^0 is undefined")
+
+  def base: BigDecimal = _base
+
+  def inner: Function = _inner
 
   override def get(x: BigDecimal): BigDecimal = {
+    if (base == 0 && inner.get(x) == 0)
+      throw new ArithmeticException("0^0 is undefined")
     scalar * Math.pow(base.toDouble, inner.get(x).toDouble)
   }
 
-  override def derive(): Function = inner.derive() * Math.log(base.toDouble) * this
-
-  override def antiderive(c: BigDecimal): Function = inner match {
-    case p: Polynomial =>
-      if (!p.isLinear)
-        throw new UnsupportedOperationException
-
-      if (p.scalars(1) == 0) {
-        Polynomial(c, scalar * Math.pow(base.toDouble, p.scalars(0).toDouble))
-      } else {
-        ExponentialFunction(base, inner) * (scalar / (p.scalars(1) * Math.log(base.toDouble)))
-      }
-    case _ => throw new UnsupportedOperationException
+  override def simplified: Function = {
+    if (base == 0 || base == 1)
+      Function.const(base)
+    else if (inner.isConst)
+      Function.const(Math.pow(base.toDouble, inner.constValue.get.toDouble))
+    else this
   }
 
-  override def constValue: Option[BigDecimal] = {
-    if (inner.isConst)
-      Some(scalar * Math.pow(base.toDouble, inner.constValue.get.toDouble))
-    else if (base == 0 || base == 1)
-      Some(scalar * base)
-    else super.constValue
+  override def equals(obj: scala.Any): Boolean = obj match {
+    case that: ExponentialFunction =>
+      (base == that.base && inner == that.inner && scalar == that.scalar) || (scalar == 0 && that.scalar == 0)
+    case that: Function => simplified.isConst && that.isConst && simplified.constValue.get == that.constValue.get
+    case _ => false
   }
+
+  override def toString: String = scalarString + s"${FuncUtils.baseString(base)}${FuncUtils.powString(inner)}"
+
 }

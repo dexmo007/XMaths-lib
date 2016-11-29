@@ -1,10 +1,8 @@
 package func
 
 import scala.collection.mutable
-import func.FuncUtils.MathString
-import func.FunctionParser.BraceString
-
 import scala.collection.mutable.ListBuffer
+import func.FuncUtils.FuncString
 
 /**
   * Created by Henrik on 7/8/2016.
@@ -33,12 +31,12 @@ object FunctionParser {
     }
   }
 
+  //todo rm?
   def evaluateParen(s: String): BigDecimal = {
     // ValidateParentheses , only need once actually
     val openPar = s.indexOf("(")
     if (openPar != -1) {
-      val closePar = findCloseParen(s, openPar)
-
+      val closePar = FuncUtils.findCloseParen(s, openPar)
     }
     0
   }
@@ -54,7 +52,7 @@ object FunctionParser {
     var i = 0
     while (i < s.length) {
       if (s(i) == '(') {
-        i = findCloseParen(s, i)
+        i = FuncUtils.findCloseParen(s, i)
       } else if (validOps.contains(s(i))) {
         terms.append(s.substring(lastOpIndex + 1, i).trimBraces())
         ops.append(s(i))
@@ -143,13 +141,11 @@ object FunctionParser {
     }
   }
 
-  def tryParseNumber(s: String): Option[BigDecimal] = {
-    try {
-      Some(BigDecimal(s))
-    } catch {
-      case _: Exception =>
-        None
-    }
+  def tryParseNumber(s: String): Option[BigDecimal] = try {
+    Some(BigDecimal(s))
+  } catch {
+    case _: Exception =>
+      None
   }
 
   implicit class Parsable(string: String) {
@@ -165,12 +161,7 @@ object FunctionParser {
       str
     }
 
-    def loseRedundantBraces: String = {
-      var str = string.trim.replaceAll(" ", "")
-      if (str.length > 0 && str(0) == '(' && findCloseParen(str, 0) == str.length - 1)
-        str = str.substring(1, str.length - 1)
-      str
-    }
+
 
     def splitAddends: List[String] = {
       val plus = '+'
@@ -198,7 +189,7 @@ object FunctionParser {
   }
 
   private def parseAddend(addend: String): Function = {
-    val s = addend.loseRedundantBraces
+    val s = addend.unwrap
     var lastOpIndex = -1
     val ops = new ListBuffer[Char]()
     val factors = new ListBuffer[Function]()
@@ -223,12 +214,12 @@ object FunctionParser {
           case "x" =>
             val scalar = readScalar(s, i - 1)
             val pow = readPow(s, i + 1)
-            Function.xToN(scalar, pow)
+            Function.xToN(pow, scalar)
           // must be an inner function
           case any: String =>
             if (s(j) != '(')
               throw FunctionParseException("inner function identifier not followed by (...)")
-            val close = findCloseParen(s, j)
+            val close = FuncUtils.findCloseParen(s, j)
             val scalar = readScalar(s, i - 1)
             // skip (...) for loop
             i += close - j
@@ -252,7 +243,7 @@ object FunctionParser {
   private def add(f1: Function, f2: Function): Function = {
     (f1, f2) match {
       case (p1: Polynomial, p2: Polynomial) =>
-        val reduced = p1.scales.zip(p2.scales).map(x => x._1 + x._2)
+        val reduced = p1.scalars.zip(p2.scalars).map(x => x._1 + x._2)
         Polynomial(reduced: _*)
       case _ =>
         f1 + f2
@@ -280,28 +271,6 @@ object FunctionParser {
       function + polynomial
   }
 
-  /**
-    * @param s    reference to string
-    * @param open index of open-parentheses
-    * @return index of the corresponding close parentheses
-    */
-  private def findCloseParen(s: String, open: Int): Int = {
-    val stack = new mutable.Stack[Char]
-    var i = open
-    while (i < s.length) {
-      val c = s(i)
-      c match {
-        case '(' => stack.push(c)
-        case ')' => stack.pop()
-        case _ =>
-      }
-      if (stack.isEmpty) {
-        return i
-      }
-      i += 1
-    }
-    throw FunctionParseException("No closing parentheses!")
-  }
 
   /**
     *

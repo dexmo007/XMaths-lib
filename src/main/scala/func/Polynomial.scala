@@ -1,17 +1,17 @@
 package func
 
-import func.FuncUtils.MathString
+import func.FuncUtils._
 
 /**
   * Created by Henrik on 6/20/2016.
   */
-case class Polynomial(private val _scales: BigDecimal*) extends Function {
+case class Polynomial(private val _scalars: BigDecimal*) extends Function {
 
   var scalars: Array[BigDecimal] = {
-    if (_scales.isEmpty) {
+    if (_scalars.isEmpty) {
       Array(0)
     } else {
-      _scales.toArray
+      _scalars.toArray
     }
   }
 
@@ -91,44 +91,51 @@ case class Polynomial(private val _scales: BigDecimal*) extends Function {
     case _ => super.+(that)
   }
 
-  override def *(that: Function): Function = {
-    if (this.isConst) {
+  def *(that: Polynomial): Polynomial = {
+    if (this.isConst)
       that.scaled(this.scalars(0))
-    } else {
+    else if (that.isConst)
+      this.scaled(that.scalars(0))
+    else {
+      val productScalars = Array.fill[BigDecimal](this.level + that.level + 1)(0)
+      for (i <- 0 to this.level)
+        for (j <- 0 to that.level) {
+          productScalars(i + j) += this.scalars(i) * that.scalars(j)
+        }
+      Polynomial(productScalars: _*)
+    }
+  }
+
+  override def *(that: Function): Function = {
+    if (this.isConst)
+      that * this.scalars(0)
+    else if (that.isConst)
+      this * that.constValue.get
+    else
       that match {
-        case p: Polynomial =>
-          if (p.isConst)
-            this.scaled(p.scalars(0))
-          else
-            super.*(that)
+        case p: Polynomial => this * p
         case _ => super.*(that)
       }
-    }
   }
 
   override def toString: String = {
     val sb = StringBuilder.newBuilder
-    if (scalars(0) != 0) {
-      sb.append(scalars(0))
-    }
-    for (i <- 1 to level) {
-      val scale = scalars(i)
-      if (scale != 0) {
-        if (scale == -1) {
-          sb.append("-x")
-        } else if (scale < 0) {
-          sb.append("-" + scale + "*x")
-        } else if (sb.nonEmpty) {
-          sb.append("+" + scale.toScalarString + "x")
-        } else {
-          sb.append(scale.toScalarString + "x")
-        }
-        if (i != 1) {
-          sb.append("^" + i)
-        }
+    for (i <- level to 0 by -1) {
+      val scalar = scalars(i)
+      if (scalar != 0) {
+        if (scalar > 0)
+          sb.append("+")
+        if (i > 0)
+          sb.append(scalar.toScalarString)
+        else
+          sb.append(scalar.toMathString)
+        if (i == 1)
+          sb.append("x")
+        else if (i > 1) sb.append(s"x^$i")
       }
     }
-    sb.toString
+    val res = sb.toString()
+    if (res.startsWith("+")) res.substring(1) else res
   }
 
   override def toTexString: String = {

@@ -1,12 +1,12 @@
 package func.trig
 
-import func.FuncUtils.MathString
 import func.{Function, ScalableFunction}
+import func.FuncUtils._
 
 /**
   * Created by Henrik on 6/25/2016.
   */
-case class CosineFunction private[func]() extends ScalableFunction {
+case class CosineFunction private[func]() extends TrigonometricFunction {
 
   override def get(x: BigDecimal): BigDecimal = {
     scalar * Math.cos(x.toDouble)
@@ -20,7 +20,5 @@ case class CosineFunction private[func]() extends ScalableFunction {
     Function.sin(scalar) + c
   }
 
-  override def toString: String = {
-    scalar.toScalarString + "cos(x)"
-  }
+  override def toString: String = scalarString + "cos(x)"
 }

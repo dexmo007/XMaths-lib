@@ -1,7 +1,7 @@
 package func
 
 import java.util.regex.Pattern
-import func.FuncUtils.FuncString
+import func.FuncUtils._
 
 import func.Operator.Operator
 
