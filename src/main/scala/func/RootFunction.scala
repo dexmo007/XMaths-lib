@@ -4,7 +4,7 @@ import scala.math.BigDecimal
 import func.FuncUtils._
 
 /**
-  * Created by Henrik on 6/25/2016.
+  * Function that represents the nth Root => f(x)=s*(x)&#94;(1/n)
   */
 case class RootFunction private[func](n: BigDecimal) extends ScalableFunction {
 

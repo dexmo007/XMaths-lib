@@ -1,12 +1,12 @@
-import org.scalatest.FlatSpec
+import org.scalatest.{FlatSpec, FunSuite}
 import func.Function
 
 /**
   * Tests the equals method for all function implementations
   */
-class EqualsSpec extends FlatSpec {
+class EqualsSpec extends FunSuite {
 
-  "Exponential functions" should "equal certain correspondents" in {
+  test("exp function equalities") {
     assert(Function.exp() == Function.exp())
     assert(Function.expb(Math.E) == Function.exp())
   }
