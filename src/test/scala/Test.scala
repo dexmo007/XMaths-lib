@@ -1,4 +1,4 @@
-import func.Function
+import func.{Format, Func2Pow, Function, Polynomial}
 
 /**
   * Created by henri on 11/25/2016.
@@ -6,7 +6,7 @@ import func.Function
 object Test {
 
   def main(args: Array[String]): Unit = {
-    println(Function.expb(0, Function.const(1)) == Function.const(0))
+    println(Format.Plain.num(0.5))
   }
 
 }

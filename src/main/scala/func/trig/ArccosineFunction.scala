@@ -1,12 +1,13 @@
 package func.trig
 
-import func.{Function, Polynomial, ScalableFunction}
-import func.FuncUtils._
+import func.{Format, Function, Polynomial}
 
 /**
   * Created by Henrik on 7/8/2016.
   */
 case class ArccosineFunction private[func]() extends TrigonometricFunction {
+
+  override val name: String = "acos"
 
   override def get(x: BigDecimal): BigDecimal = {
     scalar * Math.acos(x.toDouble)
@@ -19,6 +20,4 @@ case class ArccosineFunction private[func]() extends TrigonometricFunction {
   override def antiderive(c: BigDecimal): Function = {
     Function.linear(scalar) * ArccosineFunction() - Function.sqrt(scalar).of(Polynomial(1, 0, -1)) + c
   }
-
-  override def toString: String = scalarString + "acos(x)"
 }

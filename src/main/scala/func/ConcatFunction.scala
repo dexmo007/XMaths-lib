@@ -26,7 +26,8 @@ case class ConcatFunction private[func](outer: Function, inner: Function) extend
 
   override def constValue: Option[BigDecimal] = if (outer.isConst) outer.constValue else inner.constValue
 
-  override def toString: String = {
+  // todo check if consistent to all possibilities
+  override def stringify(format: Format): String = {
     if (outer.isInstanceOf[Polynomial])
       outer.toString.replaceAll("x", "(" + inner + ")")
     else

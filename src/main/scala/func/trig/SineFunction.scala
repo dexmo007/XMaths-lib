@@ -8,6 +8,8 @@ import func.FuncUtils._
   */
 case class SineFunction private[func]() extends TrigonometricFunction {
 
+  override val name: String = "sin"
+
   override def get(x: BigDecimal): BigDecimal = {
     scalar * Math.sin(x.toDouble)
   }
@@ -24,8 +26,6 @@ case class SineFunction private[func]() extends TrigonometricFunction {
     case _: SineFunction => this * 2
     case _ => super.+(that)
   }
-
-  override def toString: String = scalarString + "sin(x)"
 
   override def equals(obj: scala.Any): Boolean = obj match {
     case sine: SineFunction =>

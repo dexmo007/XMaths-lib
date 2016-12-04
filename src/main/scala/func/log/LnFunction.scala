@@ -1,7 +1,6 @@
 package func.log
 
-import func.{Function, ScalableFunction}
-import func.FuncUtils._
+import func.{Format, Function, ScalableFunction}
 
 /**
   * Created by Henrik on 6/25/2016.
@@ -21,5 +20,5 @@ case class LnFunction private[func]() extends ScalableFunction {
     Function.linear(scalar) * (LnFunction() - 1) + c
   }
 
-  override def toString: String = scalarString + "ln(x)"
+  override def stringify(format: Format): String = format.scalar(scalar) + "ln(x)"
 }

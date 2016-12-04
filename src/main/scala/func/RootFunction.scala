@@ -4,7 +4,7 @@ import scala.math.BigDecimal
 import func.FuncUtils._
 
 /**
-  * Function that represents the nth Root => f(x)=s*(x)&#94;(1/n)
+  * Function that represents the nth Root => f(x)=s*x&#94;(1/n)
   */
 case class RootFunction private[func](n: BigDecimal) extends ScalableFunction {
 
@@ -27,14 +27,5 @@ case class RootFunction private[func](n: BigDecimal) extends ScalableFunction {
     RootFunction(n / (n + 1)).scaled(scalar * n / (n + 1)) + c
   }
 
-  override def toString: String = {
-    scalar.toScalarString + (if (n == 1)
-      "x"
-    else if (n == 2)
-      "sqrt(x)"
-    else if (n == 3)
-      "cbrt(x)"
-    else
-      s"${n}thrt(x)")
-  }
+  override def stringify(format: Format): String = format.scalar(scalar) + format.root(n)
 }

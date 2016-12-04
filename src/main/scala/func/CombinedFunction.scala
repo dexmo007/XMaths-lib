@@ -54,10 +54,10 @@ case class CombinedFunction private[func](f1: Function, operator: Operator, f2: 
   }
 
   /**
-    * antiderives sums of functions, not possible for product/quotient of functions
+    * anti-derives sums of functions, not possible for product/quotient of functions
     *
     * @param c integration constant
-    * @return antiderivitive
+    * @return anti-derivative
     */
   override def antiderive(c: BigDecimal): Function = {
     operator match {
@@ -65,23 +65,20 @@ case class CombinedFunction private[func](f1: Function, operator: Operator, f2: 
         f1.antiderive(c) + f2.antiderive(c)
       case Operator.MINUS =>
         f1.antiderive(c) - f2.antiderive(c)
-      case Operator.TIMES | Operator.DIVIDED_BY => ???
+      case Operator.TIMES | Operator.DIVIDED_BY =>
+        throw new UnsupportedOperationException("cannot anti-derivce product or quotient of functions")
     }
   }
 
-  override def toString: String = {
+  // todo optimization
+  override def stringify(format: Format): String = {
     var res = operator match {
       case Operator.PLUS =>
-        f2 match {
-          case polynomial: Polynomial =>
-            if (polynomial.getFirstEffectiveScale < 0) {
-              f1 + "" + f2
-            } else {
-              f1 + "+" + f2
-            }
-          case _ =>
-            f1 + "+" + f2
-        }
+        val second = f2.stringify(format)
+        if (second.startsWith("-"))
+          f1.stringify(format) + second
+        else
+          s"${f1.stringify(format)}+$second"
       case Operator.MINUS =>
         f1 + "-(" + f2 + ")"
       case Operator.TIMES | Operator.DIVIDED_BY =>

@@ -37,7 +37,8 @@ case class Func2Pow private[func](function: Function, n: Int) extends ScalableFu
     Func2Pow(function, n + 1).scaled(scalar / (n + 1)) / function.derive() + c
   }
 
-  override def toString: String = scalarString + FuncUtils.baseString(function) + FuncUtils.powString(n)
+  override def stringify(format: Format): String =
+    format.scalar(scalar) + format.base(function) + format.pow(n)
 
   override def equals(obj: scala.Any): Boolean = {
     obj match {

@@ -118,7 +118,9 @@ case class Polynomial(private val _scalars: BigDecimal*) extends Function {
       }
   }
 
-  override def toString: String = {
+  override def stringify(format: Format): String = {
+    if (isConst)
+      return format.num(constValue.get)
     val sb = StringBuilder.newBuilder
     for (i <- level to 0 by -1) {
       val scalar = scalars(i)
@@ -126,9 +128,9 @@ case class Polynomial(private val _scalars: BigDecimal*) extends Function {
         if (scalar > 0)
           sb.append("+")
         if (i > 0)
-          sb.append(scalar.toScalarString)
+          sb.append(format.scalar(scalar))
         else
-          sb.append(scalar.toMathString)
+          sb.append(format.num(scalar))
         if (i == 1)
           sb.append("x")
         else if (i > 1) sb.append(s"x^$i")
@@ -136,38 +138,6 @@ case class Polynomial(private val _scalars: BigDecimal*) extends Function {
     }
     val res = sb.toString()
     if (res.startsWith("+")) res.substring(1) else res
-  }
-
-  override def toTexString: String = {
-    val sb = StringBuilder.newBuilder
-    if (scalars(level) < 0) {
-      sb.append("-")
-    }
-    for (i <- level to 0 by -1) {
-      val scale = scalars(i)
-      if (scale != 0) {
-        if (scale != 1 && scale != -1) {
-          sb.append(scale.abs.toTexString)
-        }
-        // append exponent
-        if (i == 1) {
-          sb.append("x")
-        } else if (i > 1) {
-          sb.append("x^" + i)
-        }
-        // todo check what happens if next scale is 0
-        // append the sign for next scale
-        if (i > 0) {
-          val nextScale = scalars(i - 1)
-          if (nextScale < 0) {
-            sb.append("-")
-          } else if (nextScale > 0) {
-            sb.append("+")
-          }
-        }
-      }
-    }
-    sb.toString
   }
 
   override def equals(obj: scala.Any): Boolean = {

@@ -1,6 +1,6 @@
 package func.log
 
-import func.{Function, ScalableFunction}
+import func.{Format, Function, ScalableFunction}
 import func.FuncUtils._
 
 /**
@@ -23,5 +23,5 @@ case class LogBaseFunction private[func](base: Int) extends ScalableFunction {
   // todo check if possible
   override def antiderive(c: BigDecimal): Function = ???
 
-  override def toString: String = scalarString + s"log$base(x)"
+  override def stringify(format: Format): String = format.scalar(scalar) + s"log$base(x)"
 }

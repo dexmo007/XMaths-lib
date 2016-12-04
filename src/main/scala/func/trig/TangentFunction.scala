@@ -9,6 +9,8 @@ import func.FuncUtils._
   */
 case class TangentFunction private[func]() extends TrigonometricFunction {
 
+  override val name: String = "tan"
+
   override def get(x: BigDecimal): BigDecimal = {
     scalar * Math.tan(x.toDouble)
   }
@@ -20,6 +22,4 @@ case class TangentFunction private[func]() extends TrigonometricFunction {
   override def antiderive(c: BigDecimal): Function = {
     LnFunction() * scalar of MethodFunction(x => Math.abs(Math.cos(x.toDouble)))
   }
-
-  override def toString: String = scalarString + "tan(x)"
 }

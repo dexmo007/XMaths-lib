@@ -3,8 +3,6 @@ package func
 import func.exp.{AnyExponentialFunction, EFunction}
 import func.log.{LnFunction, LogBaseFunction}
 import func.trig._
-import org.apache.commons.math3.fraction.Fraction
-import func.FuncUtils._
 
 /**
   * Created by Henrik on 6/20/2016.
@@ -34,9 +32,11 @@ trait Function extends Cloneable {
 
   def simplified: Function = this
 
-  def toTexString: String = {
-    toString
-  }
+  def stringify(format: Format): String
+
+  def toTexString: String = stringify(Format.Tex)
+
+  override def toString: String = stringify(Format.Plain)
 
   // todo override operators in subclasses to perform fitting addition procedure
   def +(that: Function): Function = CombinedFunction(this, Operator.PLUS, that)
@@ -58,7 +58,7 @@ trait Function extends Cloneable {
   /**
     * handles operation between Function and BigDecimal
     */
-  implicit class ScalarBigDecimal(bd: BigDecimal) {
+  final implicit class ScalarBigDecimal(bd: BigDecimal) {
     def *(that: Function): Function = that.scaled(bd)
   }
 

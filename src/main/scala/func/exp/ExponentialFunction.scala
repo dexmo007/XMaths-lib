@@ -1,7 +1,7 @@
 package func.exp
 
 import func.FuncUtils._
-import func.{FuncUtils, Function, ScalableFunction}
+import func.{Format, FuncUtils, Function, ScalableFunction}
 
 /**
   * Created by henri on 11/29/2016.
@@ -36,6 +36,7 @@ abstract class ExponentialFunction(_base: BigDecimal, _inner: Function) extends 
     case _ => false
   }
 
-  override def toString: String = scalarString + s"${FuncUtils.baseString(base)}${FuncUtils.powString(inner)}"
+  override def stringify(format: Format): String = format.scalar(scalar) +
+    s"${format.base(base)}${format.pow(inner)}"
 
 }
