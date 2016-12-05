@@ -5,7 +5,7 @@ import func.{Format, Function, ScalableFunction}
 /**
   * Created by Henrik on 6/25/2016.
   */
-case class LnFunction private[func]() extends ScalableFunction {
+case class LnFunction private[func]() extends LogBaseFunction(Math.E) {
 
   override def get(x: BigDecimal): BigDecimal = {
     require(x > 0, "ln(" + x + ") is undefined!")

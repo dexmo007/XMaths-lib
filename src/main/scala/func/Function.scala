@@ -41,7 +41,9 @@ trait Function extends Cloneable {
   // todo override operators in subclasses to perform fitting addition procedure
   def +(that: Function): Function = CombinedFunction(this, Operator.PLUS, that)
 
-  def -(that: Function): Function = CombinedFunction(this, Operator.MINUS, that)
+  def -(that: Function): Function = this + -that
+
+  def unary_- : Function = -1 * this
 
   def *(that: Function): Function = CombinedFunction(this, Operator.TIMES, that)
 

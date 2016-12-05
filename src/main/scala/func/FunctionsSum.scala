@@ -7,9 +7,9 @@ case class FunctionsSum private[func](private val addends: List[Function]) exten
 
   override def +(that: Function): Function = FunctionsSum(that :: addends)
 
-  override def get(x: BigDecimal): BigDecimal = addends.reduce((f1, f2) => f1.get(x) + f2.get(x))
+  override def get(x: BigDecimal): BigDecimal = addends.map(_.get(x)).sum
 
-  override def scale(factor: BigDecimal): Unit = for (i <- addends.indices) addends(i) *= factor
+  override def scale(factor: BigDecimal): Unit = addends.foreach(_.scale(factor))
 
   override def scaled(factor: BigDecimal): Function = FunctionsSum(addends.map(_ * factor))
 
@@ -18,7 +18,7 @@ case class FunctionsSum private[func](private val addends: List[Function]) exten
   override def antiderive(c: BigDecimal): Function = FunctionsSum(addends.map(_.antiderive(c)))
 
   override def constValue: Option[BigDecimal] = {
-    var totalConst = 0
+    var totalConst: BigDecimal = 0
     for (f <- addends) {
       val const = f.constValue
       if (const.isDefined)

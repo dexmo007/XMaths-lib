@@ -6,7 +6,10 @@ import func.{Format, Func2Pow, Function, Polynomial}
 object Test {
 
   def main(args: Array[String]): Unit = {
-    println(Format.Plain.num(0.5))
+    val p = Function.sin()
+    val p1 = Function.sin(3)
+    println(p + p1)
+    println(p - p1)
   }
 
 }

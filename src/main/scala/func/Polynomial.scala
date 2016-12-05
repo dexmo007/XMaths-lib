@@ -81,16 +81,6 @@ case class Polynomial(private val _scalars: BigDecimal*) extends Function {
     Polynomial(merged: _*)
   }
 
-  def -(that: Polynomial): Polynomial = {
-    val merged = this.scalars.zipAll(that.scalars, BigDecimal(0), BigDecimal(0)).map({ case (x, y) => x - y })
-    Polynomial(merged: _*)
-  }
-
-  override def -(that: Function): Function = that match {
-    case p: Polynomial => this - p
-    case _ => super.+(that)
-  }
-
   def *(that: Polynomial): Polynomial = {
     if (this.isConst)
       that.scaled(this.scalars(0))
