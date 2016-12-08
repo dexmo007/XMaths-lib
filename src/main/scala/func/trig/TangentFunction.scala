@@ -22,4 +22,6 @@ case class TangentFunction private[func]() extends TrigonometricFunction {
   override def antiderive(c: BigDecimal): Function = {
     LnFunction() * scalar of MethodFunction(x => Math.abs(Math.cos(x.toDouble)))
   }
+
+  override def equals(that: Function): Boolean = ???
 }

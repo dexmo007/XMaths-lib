@@ -33,4 +33,15 @@ case class ConcatFunction private[func](outer: Function, inner: Function) extend
     else
       outer.toString.replaceAll("x", inner.toString)
   }
+
+  override def simplified: Function = {
+    if (constValue.isDefined)
+      Function.const(constValue.get)
+    else if (inner == Function.linear())
+      outer
+    else
+      this
+  }
+
+  override def equals(that: Function): Boolean = ???
 }

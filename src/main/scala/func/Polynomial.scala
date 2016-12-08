@@ -76,9 +76,21 @@ case class Polynomial(private val _scalars: BigDecimal*) extends Function {
     case _ => super.+(that)
   }
 
-  def +(that: Polynomial): Polynomial = {
-    val merged = this.scalars.zipAll(that.scalars, BigDecimal(0), BigDecimal(0)).map({ case (x, y) => x + y })
-    Polynomial(merged: _*)
+  /**
+    * @param that polynomial to be added
+    * @return new polynomial that is equal to this + that
+    */
+  def +(that: Polynomial): Polynomial = Polynomial(scalars: _*).add(that)
+
+  /**
+    * mutates this instance thru adding the other polynomial to this
+    *
+    * @param that polynomial to add
+    * @return this instance
+    */
+  def add(that: Polynomial): Polynomial = {
+    this.scalars = this.scalars.zipAll(that.scalars, BigDecimal(0), BigDecimal(0)).map({ case (x, y) => x + y })
+    this
   }
 
   def *(that: Polynomial): Polynomial = {
@@ -130,10 +142,9 @@ case class Polynomial(private val _scalars: BigDecimal*) extends Function {
     if (res.startsWith("+")) res.substring(1) else res
   }
 
-  override def equals(obj: scala.Any): Boolean = {
-    if (!obj.isInstanceOf[Polynomial])
-      return false
-    val other = obj.asInstanceOf[Polynomial]
-    this.level == other.level && this.scalars.deep == other.scalars.deep
+  override def equals(that: Function): Boolean = that match {
+    case other: Polynomial =>
+      this.level == other.level && this.scalars.deep == other.scalars.deep
+    case _ => false
   }
 }

@@ -5,9 +5,11 @@ import func.{Format, Function, ScalableFunction}
 /**
   * Created by Henrik on 6/25/2016.
   */
-class LogBaseFunction private[func](base: BigDecimal) extends ScalableFunction {
+class LogBaseFunction private[func](private val _base: BigDecimal) extends ScalableFunction {
 
-  require(base > 1, "Base must not be " + base)
+  require(_base > 1, "Base must not be " + _base)
+
+  def base: BigDecimal = _base
 
   override def get(x: BigDecimal): BigDecimal = {
     require(x > 0, "log" + base + "(" + x + ") is undefined!")
@@ -23,6 +25,12 @@ class LogBaseFunction private[func](base: BigDecimal) extends ScalableFunction {
   override def antiderive(c: BigDecimal): Function = ???
 
   override def stringify(format: Format): String = format.scalar(scalar) + s"log$base(x)"
+
+  override def equals(that: Function): Boolean = that match {
+    case log: LogBaseFunction =>
+      base == log.base && scalar == log.scalar
+    case _ => false
+  }
 }
 
 object LogBaseFunction {

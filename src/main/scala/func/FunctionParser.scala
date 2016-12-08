@@ -162,7 +162,6 @@ object FunctionParser {
     }
 
 
-
     def splitAddends: List[String] = {
       val plus = '+'
       var off = 0
@@ -252,23 +251,12 @@ object FunctionParser {
 
   def parse(s: String): Function = {
     val str = s.loseRedundant
-    var function: Function = null
-    var polynomial = Polynomial()
+    var res: Function = FunctionsSum()
     for (rawAddend <- str.splitAddends) {
-      parseAddend(rawAddend) match {
-        // todo reduce all occurrences of one function individually, work on solution for that
-        case p: Polynomial => polynomial += p
-        case f: Function =>
-          if (function == null)
-            function = f
-          else
-            function += f
-      }
+      // todo maybe simplify each addend?
+      res += parseAddend(rawAddend).simplified
     }
-    if (function == null)
-      polynomial
-    else
-      function + polynomial
+    res.simplified
   }
 
 

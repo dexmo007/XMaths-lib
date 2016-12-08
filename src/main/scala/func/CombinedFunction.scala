@@ -126,6 +126,8 @@ case class CombinedFunction private[func](f1: Function, operator: Operator, f2: 
       else if (f1 == f2) Some(1)
       else None
   }
+
+  override def equals(that: Function): Boolean = ???
 }
 
 private[func] object Operator extends Enumeration {

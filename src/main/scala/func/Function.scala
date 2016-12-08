@@ -38,8 +38,7 @@ trait Function extends Cloneable {
 
   override def toString: String = stringify(Format.Plain)
 
-  // todo override operators in subclasses to perform fitting addition procedure
-  def +(that: Function): Function = CombinedFunction(this, Operator.PLUS, that)
+  def +(that: Function): Function = FunctionsSum(this) + that
 
   def -(that: Function): Function = this + -that
 
@@ -64,7 +63,15 @@ trait Function extends Cloneable {
     def *(that: Function): Function = that.scaled(bd)
   }
 
+  def equals(that: Function): Boolean
 
+  override def equals(obj: scala.Any): Boolean = obj match {
+    case f: Function =>
+      if (constValue.isDefined && f.constValue.isDefined)
+        constValue.get == f.constValue.get
+      else this.equals(f)
+    case _ => false
+  }
 }
 
 object Function {

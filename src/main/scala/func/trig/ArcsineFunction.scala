@@ -24,4 +24,5 @@ case class ArcsineFunction private[func]() extends TrigonometricFunction {
 
   override def stringify(format: Format): String = format.scalar(scalar) + "asin(x)"
 
+  override def equals(that: Function): Boolean = ???
 }

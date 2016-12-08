@@ -21,4 +21,6 @@ case class CosineFunction private[func]() extends TrigonometricFunction {
   override def antiderive(c: BigDecimal): Function = {
     Function.sin(scalar) + c
   }
+
+  override def equals(that: Function): Boolean = ???
 }

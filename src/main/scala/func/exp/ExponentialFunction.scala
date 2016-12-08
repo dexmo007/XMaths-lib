@@ -29,10 +29,9 @@ abstract class ExponentialFunction(_base: BigDecimal, _inner: Function) extends 
     else this
   }
 
-  override def equals(obj: scala.Any): Boolean = obj match {
+  override def equals(that: Function): Boolean = that match {
     case that: ExponentialFunction =>
-      (base == that.base && inner == that.inner && scalar == that.scalar) || (scalar == 0 && that.scalar == 0)
-    case that: Function => simplified.isConst && that.isConst && simplified.constValue.get == that.constValue.get
+      base == that.base && inner == that.inner && scalar == that.scalar
     case _ => false
   }
 

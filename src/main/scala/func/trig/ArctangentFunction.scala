@@ -21,4 +21,6 @@ case class ArctangentFunction private[func]() extends TrigonometricFunction {
   override def antiderive(c: BigDecimal): Function = {
     Function.linear(scalar) * ArctangentFunction() - Function.ln(scalar / 2).of(Polynomial(1, 0, 1)) + c
   }
+
+  override def equals(that: Function): Boolean = ???
 }

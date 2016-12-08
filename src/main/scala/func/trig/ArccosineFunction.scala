@@ -20,4 +20,6 @@ case class ArccosineFunction private[func]() extends TrigonometricFunction {
   override def antiderive(c: BigDecimal): Function = {
     Function.linear(scalar) * ArccosineFunction() - Function.sqrt(scalar).of(Polynomial(1, 0, -1)) + c
   }
+
+  override def equals(that: Function): Boolean = ???
 }

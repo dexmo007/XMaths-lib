@@ -28,4 +28,10 @@ case class RootFunction private[func](n: BigDecimal) extends ScalableFunction {
   }
 
   override def stringify(format: Format): String = format.scalar(scalar) + format.root(n)
+
+  override def equals(that: Function): Boolean = that match {
+    case root: RootFunction =>
+      n == root.n && scalar == root.scalar
+    case _ => false
+  }
 }

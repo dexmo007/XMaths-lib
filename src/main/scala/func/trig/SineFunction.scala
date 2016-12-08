@@ -22,7 +22,7 @@ case class SineFunction private[func]() extends TrigonometricFunction {
     Function.cos(-scalar) + c
   }
 
-  override def equals(obj: scala.Any): Boolean = obj match {
+  override def equals(that: Function): Boolean =  that match {
     case sine: SineFunction =>
       // a*sin(x)=b*sin(x), if a=b
       this.scalar == sine.scalar
@@ -69,4 +69,5 @@ case class SineFunction private[func]() extends TrigonometricFunction {
     case _ =>
       false
   }
+
 }

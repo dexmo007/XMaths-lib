@@ -1,4 +1,4 @@
-import func.{Format, Func2Pow, Function, Polynomial}
+import func.{Function, FunctionsSum}
 
 /**
   * Created by henri on 11/25/2016.
@@ -6,10 +6,7 @@ import func.{Format, Func2Pow, Function, Polynomial}
 object Test {
 
   def main(args: Array[String]): Unit = {
-    val p = Function.sin()
-    val p1 = Function.sin(3)
-    println(p + p1)
-    println(p - p1)
+    println(Function.sin() + Function.sqrt() + Function.sin(3) + Function.sqrt(0.5))
   }
 
 }
