@@ -15,11 +15,9 @@ case class ConcatFunction private[func](outer: Function, inner: Function) extend
     inner.derive() * outer.derive().of(inner)
   }
 
-  override def scale(factor: BigDecimal): Unit = {
+  override def scaleInternal(factor: BigDecimal): Unit = {
     outer.scale(factor)
   }
-
-  override def scaled(factor: BigDecimal) = ConcatFunction(outer.scaled(factor), inner)
 
   // todo possible? if not throw unsupported
   override def antiderive(c: BigDecimal): Function = ???

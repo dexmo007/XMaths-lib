@@ -5,7 +5,7 @@ import func.FuncUtils._
 /**
   * Created by Henrik on 6/20/2016.
   */
-case class Polynomial(private val _scalars: BigDecimal*) extends Function {
+case class Polynomial(private val _scalars: BigDecimal*) extends Function with GenCloneable[Polynomial] {
 
   var scalars: Array[BigDecimal] = {
     if (_scalars.isEmpty) {
@@ -30,11 +30,9 @@ case class Polynomial(private val _scalars: BigDecimal*) extends Function {
     res
   }
 
-  override def scale(factor: BigDecimal) {
+  override def scaleInternal(factor: BigDecimal) {
     scalars = scalars.map(_ * factor)
   }
-
-  override def scaled(factor: BigDecimal) = Polynomial(scalars.map(_ * factor): _*)
 
   override def derive(): Function = {
     val buf = scalars.toBuffer
@@ -83,7 +81,7 @@ case class Polynomial(private val _scalars: BigDecimal*) extends Function {
   def +(that: Polynomial): Polynomial = Polynomial(scalars: _*).add(that)
 
   /**
-    * mutates this instance thru adding the other polynomial to this
+    * mutates this instance through adding the other polynomial to this
     *
     * @param that polynomial to add
     * @return this instance
@@ -95,9 +93,9 @@ case class Polynomial(private val _scalars: BigDecimal*) extends Function {
 
   def *(that: Polynomial): Polynomial = {
     if (this.isConst)
-      that.scaled(this.scalars(0))
+      that.scaled(this.scalars(0)).asInstanceOf[Polynomial]
     else if (that.isConst)
-      this.scaled(that.scalars(0))
+      this.scaled(that.scalars(0)).asInstanceOf[Polynomial]
     else {
       val productScalars = Array.fill[BigDecimal](this.level + that.level + 1)(0)
       for (i <- 0 to this.level)

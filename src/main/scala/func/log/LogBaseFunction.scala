@@ -1,11 +1,11 @@
 package func.log
 
-import func.{Format, Function, ScalableFunction}
+import func.{Format, Function, GenCloneable, ScalableFunction}
 
 /**
   * Created by Henrik on 6/25/2016.
   */
-class LogBaseFunction private[func](private val _base: BigDecimal) extends ScalableFunction {
+class LogBaseFunction private[func](private val _base: BigDecimal) extends ScalableFunction with GenCloneable[LogBaseFunction] {
 
   require(_base > 1, "Base must not be " + _base)
 

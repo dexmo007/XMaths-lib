@@ -7,18 +7,13 @@ abstract class ScalableFunction(private var _scalar: BigDecimal = 1) extends Fun
 
   def scalar: BigDecimal = _scalar
 
-  override def scale(factor: BigDecimal): Unit = {
+  override def scaleInternal(factor: BigDecimal): Unit = {
     _scalar *= factor
   }
 
-  override def scaled(factor: BigDecimal): Function = {
-    val scaled = super.clone().asInstanceOf[ScalableFunction]
-    scaled.scale(factor)
-    scaled
-  }
-
-  def setScalar(newScalar: BigDecimal): Unit = {
+  def setScalar(newScalar: BigDecimal): ScalableFunction = {
     _scalar = newScalar
+    this
   }
 
   override def constValue: Option[BigDecimal] = if (scalar == 0) Some(0) else None

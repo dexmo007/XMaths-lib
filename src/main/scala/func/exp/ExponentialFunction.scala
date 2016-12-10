@@ -1,12 +1,12 @@
 package func.exp
 
-import func.FuncUtils._
-import func.{Format, FuncUtils, Function, ScalableFunction}
+import func.{Format, Function, GenCloneable, ScalableFunction}
 
 /**
   * Created by henri on 11/29/2016.
   */
-abstract class ExponentialFunction(_base: BigDecimal, _inner: Function) extends ScalableFunction {
+abstract class ExponentialFunction(_base: BigDecimal, _inner: Function)
+  extends ScalableFunction with GenCloneable[ExponentialFunction] {
 
   if (base == 0 && inner.isConst && inner.constValue.get == 0)
     throw new ArithmeticException("0^0 is undefined")

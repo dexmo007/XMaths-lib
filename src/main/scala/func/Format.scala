@@ -105,7 +105,10 @@ object Format {
   /**
     * formats as readable plain string
     */
-  val Plain = new Format {
+
+  val Plain = PlainFormat()
+
+  private[func] case class PlainFormat() extends Format {
 
     override val pi: String = "pi"
 
@@ -126,6 +129,14 @@ object Format {
 
     override def pow(s: String): String = s"^$s"
 
+  }
+
+  val ShortPlain = new PlainFormat {
+    override def scalar(scalar: BigDecimal): String = {
+      if (scalar == 1) ""
+      else if (scalar == -1) "-"
+      else num(scalar)
+    }
   }
 
 }

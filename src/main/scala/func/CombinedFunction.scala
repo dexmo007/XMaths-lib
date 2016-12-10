@@ -35,7 +35,7 @@ case class CombinedFunction private[func](f1: Function, operator: Operator, f2: 
     }
   }
 
-  override def scale(factor: BigDecimal) {
+  override def scaleInternal(factor: BigDecimal) {
     operator match {
       case Operator.PLUS | Operator.MINUS =>
         f1.scale(factor)
@@ -43,14 +43,6 @@ case class CombinedFunction private[func](f1: Function, operator: Operator, f2: 
       case Operator.TIMES | Operator.DIVIDED_BY =>
         f1.scale(factor)
     }
-  }
-
-  override def scaled(factor: BigDecimal): CombinedFunction = operator match {
-    case Operator.PLUS | Operator.MINUS =>
-      CombinedFunction(f1.scaled(factor), operator, f2.scaled(factor))
-    case Operator.TIMES | Operator.DIVIDED_BY =>
-      // todo scale the one that already has a scale of != 1 or 0
-      CombinedFunction(f1.scaled(factor), operator, f2)
   }
 
   /**

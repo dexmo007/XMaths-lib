@@ -1,11 +1,11 @@
 package func.log
 
-import func.{Format, Function, ScalableFunction}
+import func.{Format, Function, GenCloneable, ScalableFunction}
 
 /**
   * Created by Henrik on 6/25/2016.
   */
-case class LnFunction private[func]() extends LogBaseFunction(Math.E) {
+case class LnFunction private[func]() extends LogBaseFunction(Math.E) with GenCloneable[LnFunction] {
 
   override def get(x: BigDecimal): BigDecimal = {
     require(x > 0, "ln(" + x + ") is undefined!")

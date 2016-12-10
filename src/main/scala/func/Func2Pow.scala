@@ -1,11 +1,9 @@
 package func
 
-import func.FuncUtils._
-
 /**
   * Created by Henrik on 6/22/2016.
   */
-case class Func2Pow private[func](inner: Function, n: Int) extends ScalableFunction {
+case class Func2Pow private[func](inner: Function, n: Int) extends ScalableFunction with GenCloneable[Func2Pow] {
 
   override def get(x: BigDecimal): BigDecimal = {
     val innerX = inner.get(x)
@@ -37,16 +35,26 @@ case class Func2Pow private[func](inner: Function, n: Int) extends ScalableFunct
     Func2Pow(inner, n + 1).scaled(scalar / (n + 1)) / inner.derive() + c
   }
 
+  override def simplified: Function = inner match {
+    case p: Polynomial =>
+      var res = p
+      for (_ <- 1 to n) res *= p
+      res
+    case root: RootFunction =>
+      if (n == root.n)
+        inner.cloned()
+      else this
+    case _ => this
+  }
+
   override def stringify(format: Format): String =
     format.scalar(scalar) + format.base(inner) + format.pow(n)
 
-  override def equals(obj: scala.Any): Boolean = {
-    obj match {
-      case that: Func2Pow =>
-        scalar == that.scalar && inner.equals(that.inner) && n == that.n
-      case _ => false
-    }
+  override def equals(that: Function): Boolean = that match {
+    case f2p: Func2Pow =>
+      scalar == f2p.scalar && inner.equals(f2p.inner) && n == f2p.n
+    case root: RootFunction =>
+      scalar == root.scalar && inner == Function.linear() && n == 1 / root.n
+    case _ => false
   }
-
-  override def equals(that: Function): Boolean = ???
 }

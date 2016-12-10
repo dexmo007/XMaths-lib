@@ -58,9 +58,7 @@ case class FunctionsSum private[func](private var addends: List[Function]) exten
 
   override def get(x: BigDecimal): BigDecimal = addends.map(_.get(x)).sum
 
-  override def scale(factor: BigDecimal): Unit = addends.foreach(_.scale(factor))
-
-  override def scaled(factor: BigDecimal): Function = FunctionsSum(addends.map(_ * factor))
+  override def scaleInternal(factor: BigDecimal): Unit = addends.foreach(_.scale(factor))
 
   override def derive(): Function = FunctionsSum(addends.map(_.derive()))
 
@@ -92,7 +90,7 @@ case class FunctionsSum private[func](private var addends: List[Function]) exten
         sum.addends.toSet == thatSum.addends.toSet
       case _ => false
     }
-    case _ => simplified.equals(that)
+    case _ => simplified == that
   }
 }
 

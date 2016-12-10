@@ -1,11 +1,12 @@
 package func.exp
 
-import func.Function
+import func.{Function, GenCloneable}
 
 /**
   * Created by Henrik on 6/27/2016.
   */
-case class EFunction private[func](override val inner: Function) extends ExponentialFunction(Math.E, inner) {
+case class EFunction private[func](override val inner: Function)
+  extends ExponentialFunction(Math.E, inner) with GenCloneable[EFunction] {
 
   override def derive(): Function = {
     if (isConst)

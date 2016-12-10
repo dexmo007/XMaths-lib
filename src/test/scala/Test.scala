@@ -6,7 +6,9 @@ import func.{Function, FunctionsSum}
 object Test {
 
   def main(args: Array[String]): Unit = {
-    println(Function.sin() + Function.sqrt() + Function.sin(3) + Function.sqrt(0.5))
+    val p1 = Function.polynomial(1, 2, 1, 3)
+    val p2 = p1.cloned() * 0.5
+    println(p2.toShortString)
   }
 
 }

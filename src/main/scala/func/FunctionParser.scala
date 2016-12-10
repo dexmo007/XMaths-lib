@@ -1,8 +1,9 @@
 package func
 
+import func.FuncUtils.FuncString
+
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
-import func.FuncUtils.FuncString
 
 /**
   * Created by Henrik on 7/8/2016.
@@ -11,84 +12,24 @@ object FunctionParser {
   private val validChars = "+-*^x."
   private val validOps = "+-*/^"
 
-  /**
-    * Tries to parse string to function, if success, that function is returned, else evaluation is tried, if success, the value is returned, else Exception is thrown
-    *
-    * @param s string to be parsed or evaluated
-    * @return Function or BigDecimal
-    */
-  def parseOrEval(s: String): Any = {
-    try {
-      parse(s)
-    } catch {
-      case _: Exception =>
-        try {
-          evaluateSingle(s)
-        } catch {
-          case _: Exception =>
-            throw FunctionParseException()
-        }
-    }
+  def tryParse(s: String): Option[Function] = try {
+    Some(parse(s))
+  } catch {
+    case _: Exception => None
   }
 
-  //todo rm?
-  def evaluateParen(s: String): BigDecimal = {
-    // ValidateParentheses , only need once actually
-    val openPar = s.indexOf("(")
-    if (openPar != -1) {
-      val closePar = FuncUtils.findCloseParen(s, openPar)
-    }
-    0
+  def parseOrEval(s: String): Either[Function, BigDecimal] = {
+    val f = parse(s)
+    val const = f.constValue
+    if (const.isDefined)
+      Right(const.get)
+    else Left(f)
   }
 
-  def evaluate2(s: String): BigDecimal = {
-    // if s has no operators
-    if (validOps.forall(op => !s.contains(op))) {
-      evaluateSingle(s)
-    }
-    val ops = new Array[Char](0).toBuffer
-    val terms = new Array[Any](0).toBuffer
-    var lastOpIndex = -1
-    var i = 0
-    while (i < s.length) {
-      if (s(i) == '(') {
-        i = FuncUtils.findCloseParen(s, i)
-      } else if (validOps.contains(s(i))) {
-        terms.append(s.substring(lastOpIndex + 1, i).trimBraces())
-        ops.append(s(i))
-        lastOpIndex = i
-      }
-      i += 1
-    }
-    terms.append(s.substring(lastOpIndex + 1, s.length).trimBraces())
-    perform(ops, terms, "^")
-    perform(ops, terms, "*/")
-    perform(ops, terms, "+-")
-    terms.head match {
-      case d: BigDecimal => d
-      case s: String => evaluate2(s)
-    }
-  }
-
-  def perform(ops: mutable.Buffer[Char], terms: mutable.Buffer[Any], op: String): Unit = {
-    var i = 0
-    while (i < ops.length) {
-      if (op.contains(ops(i))) {
-        val term1 = terms(i) match {
-          case s: String => evaluate2(s)
-          case d: BigDecimal => d
-        }
-        val term2 = terms(i + 1) match {
-          case s: String => evaluate2(s)
-          case d: BigDecimal => d
-        }
-        terms(i) = getOperation(ops(i))(term1, term2)
-        ops.remove(i)
-        terms.remove(i + 1)
-      } else {
-        i += 1
-      }
-    }
+  def tryParseOrEval(s: String): Option[Either[Function, BigDecimal]] = try {
+    Some(parseOrEval(s))
+  } catch {
+    case _: Exception => None
   }
 
   implicit class BraceString(s: String) {
@@ -132,12 +73,10 @@ object FunctionParser {
       Math.PI
     } else if (s.isEmpty) {
       0
-    } else {
-      try {
-        BigDecimal(s)
-      } catch {
-        case _: Exception => throw new IllegalArgumentException("String invalid!")
-      }
+    } else try {
+      BigDecimal(s)
+    } catch {
+      case _: Exception => throw new IllegalArgumentException("String invalid!")
     }
   }
 
@@ -253,7 +192,6 @@ object FunctionParser {
     val str = s.loseRedundant
     var res: Function = FunctionsSum()
     for (rawAddend <- str.splitAddends) {
-      // todo maybe simplify each addend?
       res += parseAddend(rawAddend).simplified
     }
     res.simplified
@@ -290,7 +228,7 @@ object FunctionParser {
       0.0
     }
     map.foreach(entry => scls(entry._1) = entry._2)
-    Function.polynomial(scls: _*).asInstanceOf[Polynomial]
+    Function.polynomial(scls: _*)
   }
 
   def getSimpleSummand(s: String): BigDecimal = {

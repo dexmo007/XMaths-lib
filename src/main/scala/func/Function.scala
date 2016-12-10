@@ -7,13 +7,19 @@ import func.trig._
 /**
   * Created by Henrik on 6/20/2016.
   */
-trait Function extends Cloneable {
+trait Function extends GenCloneable[Function] {
 
   def get(x: BigDecimal): BigDecimal
 
-  def scale(factor: BigDecimal)
+  protected def scaleInternal(factor: BigDecimal): Unit
 
-  def scaled(factor: BigDecimal): Function
+  final def scale[T: Numeric](factor: T): Unit = scaleInternal(BigDecimal(factor.toString))
+
+  final def scaled[T: Numeric](factor: T): Function = {
+    val scaled = cloned()
+    scaled.scale(factor)
+    scaled
+  }
 
   def derive(): Function
 
@@ -32,37 +38,55 @@ trait Function extends Cloneable {
 
   def simplified: Function = this
 
-  def stringify(format: Format): String
+  def of(inner: Function): Function = ConcatFunction(this, inner)
 
-  def toTexString: String = stringify(Format.Tex)
+  def pow(n: Int): Function = Func2Pow(this, n)
 
-  override def toString: String = stringify(Format.Plain)
-
+  //region standard operations +,-,*,/,unary
   def +(that: Function): Function = FunctionsSum(this) + that
 
-  def -(that: Function): Function = this + -that
+  final def -(that: Function): Function = this + -that
 
   def unary_- : Function = -1 * this
 
   def *(that: Function): Function = CombinedFunction(this, Operator.TIMES, that)
 
-  def *(factor: BigDecimal): Function = this.scaled(factor)
+  final def *[T: Numeric](factor: T): Function = this.scaled(BigDecimal(factor.toString))
 
   def /(that: Function): Function = CombinedFunction(this, Operator.DIVIDED_BY, that)
 
-  def /(div: BigDecimal): Function = this.scaled(1 / div)
-
-  def pow(n: Int): Function = Func2Pow(this, n)
-
-  def of(inner: Function): Function = ConcatFunction(this, inner)
+  final def /[T: Numeric](div: T): Function = this.scaled(1 / BigDecimal(div.toString))
 
   /**
-    * handles operation between Function and BigDecimal
+    * handles operation between Function and a numeric
     */
-  final implicit class ScalarBigDecimal(bd: BigDecimal) {
-    def *(that: Function): Function = that.scaled(bd)
+  private[func] trait FunctionScalar {
+    def *(that: Function): Function
   }
 
+  final implicit class ScalarBigDecimal(bd: BigDecimal) extends FunctionScalar {
+    override def *(that: Function): Function = that.scaled(bd)
+  }
+
+  final implicit class ScalarInt(i: Int) extends FunctionScalar {
+    override def *(that: Function): Function = that.scaled(i)
+  }
+
+  final implicit class ScalarDouble(d: Double) extends FunctionScalar {
+    override def *(that: Function): Function = that.scaled(d)
+  }
+
+  final implicit class ScalarBigInt(bi: BigInt) extends FunctionScalar {
+    override def *(that: Function): Function = that.scaled(bi)
+  }
+
+  final implicit class ScalarFloat(f: Float) extends FunctionScalar {
+    override def *(that: Function): Function = that.scaled(f)
+  }
+
+  //endregion
+
+  //region equals methods
   def equals(that: Function): Boolean
 
   override def equals(obj: scala.Any): Boolean = obj match {
@@ -72,6 +96,19 @@ trait Function extends Cloneable {
       else this.equals(f)
     case _ => false
   }
+
+  //endregion
+
+  //region to string conversion
+  def stringify(format: Format): String
+
+  def toTexString: String = stringify(Format.Tex)
+
+  override def toString: String = stringify(Format.Plain)
+
+  def toShortString: String = stringify(Format.ShortPlain)
+
+  //endregion
 }
 
 object Function {
