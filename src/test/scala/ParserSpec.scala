@@ -1,5 +1,4 @@
-import func.FunctionParser
-import func.Function
+import de.hd.func.{FunctionParser, _}
 import org.scalatest.FunSuite
 
 /**

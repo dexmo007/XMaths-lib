@@ -1,5 +1,5 @@
 import org.scalatest.{FlatSpec, FunSuite}
-import func.Function
+import de.hd.func.Function
 
 /**
   * Tests the equals method for all function implementations
