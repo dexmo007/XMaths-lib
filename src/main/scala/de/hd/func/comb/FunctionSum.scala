@@ -31,7 +31,7 @@ case class FunctionSum(private val addends: List[Function]) extends Function {
   }
 
   def ++(those: List[Function]): FunctionSum = {
-    var sum: Function = FunctionSum()
+    var sum: Function = this
     for (addend <- those) sum += addend
     sum.asInstanceOf[FunctionSum]
   }

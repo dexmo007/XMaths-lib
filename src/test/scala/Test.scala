@@ -6,7 +6,14 @@ import de.hd.func.Function
 object Test {
 
   def main(args: Array[String]): Unit = {
-    println(Function.linear().pow(2) + (Function.linear().pow(2) * 3))
+    //    val list = List(Function.sin(2).pow(2), Function.sin(3).pow(1), Function.const(0))
+    //    val (matched, rest) = Util.powPartition[TrigonometricFunction](list, _ => true)
+    //    println(matched)
+    //    println(rest)
+
+    //    println(Function.sin(2) * Function.sin(3))
+    val pow = Function.sin().pow(2)
+    println(pow)
   }
 
 }

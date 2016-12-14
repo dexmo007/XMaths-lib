@@ -1,6 +1,6 @@
 package de.hd.func
 
-import de.hd.func.comb.FunctionSum
+import de.hd.func.comb.{FunctionProduct, FunctionSum}
 import de.hd.func.exp.{EFunction, ExponentialFunction}
 import de.hd.func.log.{LnFunction, LogBaseFunction}
 import de.hd.func.trig._
@@ -48,7 +48,7 @@ trait Function extends Cloneable {
 
   final def unary_- : Function = -1 * this
 
-  def *(that: Function): Function = CombinedFunction(this, Operator.TIMES, that)
+  def *(that: Function): Function = FunctionProduct(this, that)
 
   final def *[N: Numeric](factor: N): Function = this.scaled(BigDecimal(factor.toString))
 

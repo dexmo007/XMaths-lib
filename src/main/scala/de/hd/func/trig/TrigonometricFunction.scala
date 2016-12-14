@@ -21,6 +21,10 @@ abstract class TrigonometricFunction(override val scalar: BigDecimal)
     case _ => super.+(that)
   }
 
-  override def stringify(format: Format): String = format.scalar(scalar) + s"$name(x)"
+  override def stringify(format: Format): String = simplified match {
+    case trig: TrigonometricFunction =>
+      format.scalar(scalar) + s"$name(x)"
+    case f => f.stringify(format)
+  }
 
 }

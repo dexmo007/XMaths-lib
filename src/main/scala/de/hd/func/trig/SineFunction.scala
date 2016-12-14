@@ -22,7 +22,7 @@ case class SineFunction private[func](override val scalar: BigDecimal = 1) exten
     case sine: SineFunction =>
       // a*sin(x)=b*sin(x), if a=b
       this.scalar == sine.scalar
-    case concat: ConcatFunction =>
+    case concat: ConcatFunction[TrigonometricFunction, Function] =>
       concat.outer match {
         case sine: SineFunction =>
           if (!concat.inner.isInstanceOf[Polynomial]) {
