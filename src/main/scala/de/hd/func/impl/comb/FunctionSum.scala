@@ -1,7 +1,10 @@
-package de.hd.func.comb
+package de.hd.func.impl.comb
 
 import de.hd.func
-import de.hd.func.{Format, Func2Pow, Function, GenFunction, Polynomial, RootFunction, ScalarFunction, exp, log, trig}
+import de.hd.func.impl.log.LogBaseFunction
+import de.hd.func.impl.{Func2Pow, Polynomial, RootFunction}
+import de.hd.func.impl.trig.TrigonometricFunction
+import de.hd.func.{Format, Function, GenFunction, ScalarFunction}
 
 import scala.reflect.ClassTag
 
@@ -13,13 +16,13 @@ case class FunctionSum(private val addends: List[Function]) extends Function {
   override def +(that: Function): Function = that match {
     case sum: FunctionSum =>
       this ++ sum.addends
-    case exp: exp.ExponentialFunction =>
-      scaleOrAdd[func.exp.ExponentialFunction](exp, _.base, _.inner)
-    case log: log.LogBaseFunction =>
-      scaleOrAdd[func.log.LogBaseFunction](log, _.base)
-    case trig: trig.TrigonometricFunction =>
-      mergeOrAdd[func.trig.TrigonometricFunction](trig, _.getClass)((that, f) =>
-        that.scaled((that.scalar + f.scalar) / that.scalar).asInstanceOf[func.trig.TrigonometricFunction])
+    case exp: de.hd.func.impl.exp.ExponentialFunction =>
+      scaleOrAdd[de.hd.func.impl.exp.ExponentialFunction](exp, _.base, _.inner)
+    case log: LogBaseFunction =>
+      scaleOrAdd[LogBaseFunction](log, _.base)
+    case trig: TrigonometricFunction =>
+      mergeOrAdd[TrigonometricFunction](trig, _.getClass)((that, f) =>
+        that.scaledInternal((that.scalar + f.scalar) / that.scalar).asInstanceOf[TrigonometricFunction])
     case f2p: Func2Pow[Function] =>
       scaleOrAdd[Func2Pow[Function]](f2p, _.inner, _.n)
     case poly: Polynomial =>
@@ -56,7 +59,7 @@ case class FunctionSum(private val addends: List[Function]) extends Function {
     */
   private def scaleOrAdd[T <: ScalarFunction](that: T, values: (T => Any)*)
                                              (implicit evidence: ClassTag[T], gf: GenFunction[T] = that): FunctionSum =
-    mergeOrAdd[T](that, values: _*)((that, f) => gf.scaled(that, (that.scalar + f.scalar) / that.scalar))
+    mergeOrAdd[T](that, values: _*)((that, f) => gf.scaledInternal(that, (that.scalar + f.scalar) / that.scalar))
 
   //    mergeOrAdd[T](that, values: _*)((that, f) => that.scaled((that.scalar + f.scalar) / that.scalar).asInstanceOf[T])
 
@@ -100,7 +103,7 @@ case class FunctionSum(private val addends: List[Function]) extends Function {
     case _ => simplify == that
   }
 
-  override def scaled(scalar: BigDecimal): FunctionSum = FunctionSum(addends.map(_.scaled(scalar)))
+  override def scaledInternal(scalar: BigDecimal): FunctionSum = FunctionSum(addends.map(_.scaledInternal(scalar)))
 }
 
 object FunctionSum {

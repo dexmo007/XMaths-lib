@@ -1,7 +1,7 @@
 package de.hd.func
 
 import de.hd.func.FuncUtils._
-import de.hd.func.trig.TrigonometricFunction
+import de.hd.func.impl.trig.TrigonometricFunction
 import org.apache.commons.math3.fraction.Fraction
 
 /**

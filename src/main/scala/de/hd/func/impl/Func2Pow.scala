@@ -1,10 +1,12 @@
-package de.hd.func
+package de.hd.func.impl
+
+import de.hd.func.{Format, Function, GenScalarFunction}
 
 /**
   * Created by Henrik on 6/22/2016.
   */
-case class Func2Pow[+F <: Function] private[func](inner: F, n: Int, override val scalar: BigDecimal = 1)
-  extends ScalarFunction(scalar) {
+case class Func2Pow private[func](inner: Function, n: Int, override val scalar: BigDecimal = 1)
+  extends GenScalarFunction[Func2Pow](scalar) {
 
   override def get(x: BigDecimal): BigDecimal = {
     val innerX = inner.get(x)
@@ -12,15 +14,13 @@ case class Func2Pow[+F <: Function] private[func](inner: F, n: Int, override val
     innerX.pow(n) * scalar
   }
 
-  override def scaled(scalar: BigDecimal): Func2Pow[F] = Func2Pow(inner, n, this.scalar * scalar)
-
   /**
     * derives the function using power rule and chain rule
     *
     * @return derivative
     */
   override protected def derive(): Function = {
-    inner.derivative * Func2Pow(inner, n - 1).scaled(scalar * n)
+    Func2Pow(inner, n - 1).scaledInternal(scalar * n) * inner.derivative
   }
 
   override def getConst: Option[BigDecimal] = {
@@ -35,8 +35,10 @@ case class Func2Pow[+F <: Function] private[func](inner: F, n: Int, override val
     if (!isLinear)
       throw new UnsupportedOperationException("can't find anti-derivative if inner function not linear")
     // todo check if inner.constValue.get * res is needed
-    Func2Pow(inner, n + 1).scaled(scalar / (n + 1)) / inner.derivative + c
+    Func2Pow(inner, n + 1, scalar / (n + 1)) / inner.derivative + c
   }
+
+  override def withScalar(newScalar: BigDecimal): Func2Pow = copy(scalar = newScalar)
 
   override def simplify: Function = inner match {
     case p: Polynomial =>
@@ -45,7 +47,7 @@ case class Func2Pow[+F <: Function] private[func](inner: F, n: Int, override val
       res
     case root: RootFunction =>
       if (n == root.n)
-        inner.cloned()
+        inner
       else this
     case _ => this
   }
@@ -54,7 +56,7 @@ case class Func2Pow[+F <: Function] private[func](inner: F, n: Int, override val
     format.scalar(scalar) + format.base(inner) + format.pow(n)
 
   override def equals(that: Function): Boolean = that match {
-    case f2p: Func2Pow[Function] =>
+    case f2p: Func2Pow =>
       scalar == f2p.scalar && inner.equals(f2p.inner) && n == f2p.n
     case root: RootFunction =>
       scalar == root.scalar && inner == Function.linear() && n == 1 / root.n

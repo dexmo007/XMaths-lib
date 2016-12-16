@@ -1,4 +1,6 @@
-package de.hd.func
+package de.hd.func.impl
+
+import de.hd.func.{Format, Function, GenScalarFunction}
 
 import scala.math.BigDecimal
 
@@ -6,7 +8,7 @@ import scala.math.BigDecimal
   * Function that represents the nth Root => f(x)=s*x&#94;(1/n)
   */
 case class RootFunction private[func](n: BigDecimal, override val scalar: BigDecimal = 1)
-  extends ScalarFunction(scalar) {
+  extends GenScalarFunction[RootFunction](scalar) {
 
   require(n != 0, "0th root does not exist!")
 
@@ -19,8 +21,6 @@ case class RootFunction private[func](n: BigDecimal, override val scalar: BigDec
       scalar * Math.pow(x.toDouble, (1 / n).toDouble)
   }
 
-  override def scaled(scalar: BigDecimal): RootFunction = RootFunction(n, this.scalar * scalar)
-
   override def derive(): Function = {
     scalar / RootFunction(n / (1 - n), n)
   }
@@ -29,6 +29,8 @@ case class RootFunction private[func](n: BigDecimal, override val scalar: BigDec
     RootFunction(n / (n + 1), scalar * n / (n + 1)) + c
   }
 
+  override def withScalar(newScalar: BigDecimal): RootFunction = copy(scalar = newScalar)
+
   override def stringify(format: Format): String = format.scalar(scalar) + format.root(n)
 
   override def equals(that: Function): Boolean = that match {
@@ -36,4 +38,5 @@ case class RootFunction private[func](n: BigDecimal, override val scalar: BigDec
       n == root.n && scalar == root.scalar
     case _ => false
   }
+
 }

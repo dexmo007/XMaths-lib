@@ -1,9 +1,10 @@
 package de.hd.func
 
-import de.hd.func.comb.{FunctionProduct, FunctionSum}
-import de.hd.func.exp.{EFunction, ExponentialFunction}
-import de.hd.func.log.{LnFunction, LogBaseFunction}
-import de.hd.func.trig._
+import de.hd.func.impl._
+import de.hd.func.impl.comb.{FunctionProduct, FunctionQuotient, FunctionSum}
+import de.hd.func.impl.exp.{EFunction, ExponentialFunction}
+import de.hd.func.impl.log.{LnFunction, LogBaseFunction}
+import de.hd.func.impl.trig._
 
 /**
   * trait that defines a mathematical function, a Function is immutable, so all calculation can be done lazily
@@ -12,7 +13,7 @@ trait Function {
 
   def get(x: BigDecimal): BigDecimal
 
-  def scaled(scalar: BigDecimal): Function
+  //  def scaledInternal(scalar: BigDecimal): Function
 
   protected def derive(): Function
 
@@ -43,20 +44,19 @@ trait Function {
 
   def pow(n: Int): Function = Func2Pow(this, n)
 
-  //region standard operations +,-,*,/,unary
   def +(that: Function): Function = FunctionSum(this) + that
 
   final def -(that: Function): Function = this + -that
 
-  final def unary_- : Function = -1 * this
-
   def *(that: Function): Function = FunctionProduct(this, that)
 
-  final def *[N: Numeric](factor: N): Function = this.scaled(BigDecimal(factor.toString))
+  def *(factor: BigDecimal): Function
 
-  def /(that: Function): Function = CombinedFunction(this, Operator.DIVIDED_BY, that)
+  def unary_- : Function = -1 * this
 
-  final def /[N: Numeric](that: N): Function = this.scaled(1 / BigDecimal(that.toString))
+  def /(that: Function): Function = FunctionQuotient(this, that)
+
+  def /(that: BigDecimal): Function
 
   /**
     * handles operation between Function and a numeric
@@ -66,28 +66,25 @@ trait Function {
   }
 
   final implicit class ScalarBigDecimal(bd: BigDecimal) extends FunctionScalar {
-    override def *(that: Function): Function = that.scaled(bd)
+    override def *(that: Function): Function = that * bd
   }
 
   final implicit class ScalarInt(i: Int) extends FunctionScalar {
-    override def *(that: Function): Function = that.scaled(i)
+    override def *(that: Function): Function = that * i
   }
 
   final implicit class ScalarDouble(d: Double) extends FunctionScalar {
-    override def *(that: Function): Function = that.scaled(d)
+    override def *(that: Function): Function = that * d
   }
 
   final implicit class ScalarBigInt(bi: BigInt) extends FunctionScalar {
-    override def *(that: Function): Function = that.scaled(BigDecimal(bi))
+    override def *(that: Function): Function = that * BigDecimal(bi)
   }
 
   final implicit class ScalarFloat(f: Float) extends FunctionScalar {
-    override def *(that: Function): Function = that.scaled(BigDecimal(f))
+    override def *(that: Function): Function = that * BigDecimal(f)
   }
 
-  //endregion
-
-  //region equals methods
   def equals(that: Function): Boolean
 
   override def equals(obj: scala.Any): Boolean = obj match {
@@ -98,9 +95,6 @@ trait Function {
     case _ => false
   }
 
-  //endregion
-
-  //region to string conversion
   def stringify(format: Format): String
 
   private lazy val texString = stringify(Format.Tex)
@@ -114,8 +108,6 @@ trait Function {
   private lazy val shortString = stringify(Format.ShortPlain)
 
   def toShortString: String = shortString
-
-  //endregion
 }
 
 object Function {

@@ -1,4 +1,4 @@
-package de.hd.func.exp
+package de.hd.func.impl.exp
 
 import de.hd.func._
 
@@ -7,8 +7,6 @@ import de.hd.func._
   */
 case class EFunction private[func](override val inner: Function, override val scalar: BigDecimal = 1)
   extends ExponentialFunction(Math.E, inner, scalar) {
-
-  override def scaled(scalar: BigDecimal): EFunction = EFunction(inner, scalar)
 
   override def derive(): Function = {
     if (isConst)
@@ -32,6 +30,8 @@ case class EFunction private[func](override val inner: Function, override val sc
     else
       EFunction(inner) * inner.derivative.const.get + c
   }
+
+  override def withScalar(newScalar: BigDecimal): EFunction = copy(scalar = newScalar)
 
   override def getConst: Option[BigDecimal] = {
     if (inner.isConst)

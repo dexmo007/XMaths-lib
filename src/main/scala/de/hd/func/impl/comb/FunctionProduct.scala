@@ -1,9 +1,10 @@
-package de.hd.func.comb
+package de.hd.func.impl.comb
 
-import de.hd.func.exp.ExponentialFunction
-import de.hd.func.log.{LnFunction, LogBaseFunction}
-import de.hd.func.trig.TrigonometricFunction
-import de.hd.func.{Format, Func2Pow, Function, Polynomial, RootFunction, ScalarFunction}
+import de.hd.func.impl.exp.ExponentialFunction
+import de.hd.func.impl.log.{LnFunction, LogBaseFunction}
+import de.hd.func.impl.trig.TrigonometricFunction
+import de.hd.func.impl.{Func2Pow, Polynomial, RootFunction}
+import de.hd.func.{Format, Function, ScalarFunction}
 
 import scala.reflect.ClassTag
 
@@ -58,7 +59,7 @@ case class FunctionProduct(private val factors: List[Function]) extends Function
   }
 
   def findAndMergeAsPow[T <: ScalarFunction](that: T, values: (ScalarFunction => Any)*)
-                                            (inner: T, mergeScalar: (T, Func2Pow[T]) => BigDecimal)
+                                            (inner: T, mergeScalar: (T, Func2Pow) => BigDecimal)
                                             (wrappedScalar: T => BigDecimal)
                                             (implicit evidence: ClassTag[T]): FunctionProduct = {
     val (matched, rest) = Util.powPartition[T](factors, t => values.isEmpty || values.forall(get => get(that) == get(t)))
@@ -73,7 +74,7 @@ case class FunctionProduct(private val factors: List[Function]) extends Function
 
   override def get(x: BigDecimal): BigDecimal = factors.map(_.get(x)).product
 
-  override def scaled(scalar: BigDecimal): Function = FunctionProduct(factors.head.scaled(scalar) :: factors.tail)
+  override def scaledInternal(scalar: BigDecimal): Function = FunctionProduct(factors.head.*(scalar) :: factors.tail)
 
   override protected def derive(): Function =
     factors.head.derivative * FunctionProduct(factors.tail) + (factors.head * FunctionProduct(factors.tail).derive())

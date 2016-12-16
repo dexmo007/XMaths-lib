@@ -1,12 +1,13 @@
-package de.hd.func.exp
+package de.hd.func.impl.exp
 
 import de.hd.func._
+import de.hd.func.impl.Polynomial
 
 /**
   * Created by henri on 11/29/2016.
   */
 class ExponentialFunction(val base: BigDecimal, val inner: Function, override val scalar: BigDecimal = 1)
-  extends ScalarFunction(scalar) {
+  extends GenScalarFunction[ExponentialFunction](scalar) {
 
   if (base == 0 && inner.isConst && inner.const.get == 0)
     throw new ArithmeticException("0^0 is undefined")
@@ -18,12 +19,10 @@ class ExponentialFunction(val base: BigDecimal, val inner: Function, override va
     scalar * Math.pow(base.toDouble, inner.get(x).toDouble)
   }
 
-  override def scaled(scalar: BigDecimal): ExponentialFunction = ExponentialFunction(base, inner, this.scalar * scalar)
-
   override def derive(): Function = inner.derivative * Math.log(base.toDouble) * this
 
   override def antiderive(c: BigDecimal): Function = inner match {
-      // todo generalize isLinear call
+    // todo generalize isLinear call
     case p: Polynomial =>
       if (!p.isLinear)
         throw new UnsupportedOperationException
@@ -35,6 +34,8 @@ class ExponentialFunction(val base: BigDecimal, val inner: Function, override va
       }
     case _ => throw new UnsupportedOperationException
   }
+
+  override def withScalar(newScalar: BigDecimal): ExponentialFunction = ExponentialFunction(base, inner, newScalar)
 
   override def getConst: Option[BigDecimal] = {
     if (inner.isConst)

@@ -1,4 +1,4 @@
-package de.hd.func.comb
+package de.hd.func.impl.comb
 
 import de.hd.func.{Format, Function}
 /**
@@ -11,7 +11,7 @@ case class FunctionQuotient(dividend: Function, divisor: Function) extends Funct
 
   override def get(x: BigDecimal): BigDecimal = dividend.get(x) / divisor.get(x)
 
-  override def scaled(scalar: BigDecimal): Function = FunctionQuotient(dividend * scalar, divisor)
+  override def scaledInternal(scalar: BigDecimal): Function = FunctionQuotient(dividend * scalar, divisor)
 
   override protected def derive(): Function =
     (dividend.derivative * divisor - (dividend * divisor.derivative)) / divisor.pow(2)

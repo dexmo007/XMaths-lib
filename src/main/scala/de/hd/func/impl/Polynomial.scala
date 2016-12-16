@@ -1,21 +1,12 @@
-package de.hd.func
+package de.hd.func.impl
+
+import de.hd.func.{Format, Function, GenFunction}
 
 /**
   * Polynomial function saving the scalars in a list, index represents the power
   *
   */
-class Polynomial(val scalars: List[BigDecimal]) extends Function {
-
-  lazy val level: Int = {
-    def calcLevel: Int = {
-      for (i <- scalars.indices.reverse)
-        if (scalars(i) != 0)
-          return i
-      0
-    }
-
-    calcLevel
-  }
+class Polynomial(val scalars: List[BigDecimal]) extends GenFunction[Polynomial] {
 
   def get(x: BigDecimal): BigDecimal = {
     var res: BigDecimal = 0
@@ -25,7 +16,7 @@ class Polynomial(val scalars: List[BigDecimal]) extends Function {
     res
   }
 
-  override def scaled(scalar: BigDecimal): Polynomial = Polynomial(this.scalars.map(_ * scalar))
+  override def scaledInternal(scalar: BigDecimal): Polynomial = Polynomial(this.scalars.map(_ * scalar))
 
   override def derive(): Function = {
     val buf = scalars.toBuffer
@@ -53,6 +44,17 @@ class Polynomial(val scalars: List[BigDecimal]) extends Function {
 
   override lazy val isLinear: Boolean = isConst || level < 2 || scalars.drop(2).forall(_ == 0)
 
+  lazy val level: Int = {
+    def calcLevel: Int = {
+      for (i <- scalars.indices.reverse)
+        if (scalars(i) != 0)
+          return i
+      0
+    }
+
+    calcLevel
+  }
+
   def getFirstEffectiveScale: BigDecimal = {
     for (scale <- scalars) {
       if (scale != 0) {
@@ -77,9 +79,9 @@ class Polynomial(val scalars: List[BigDecimal]) extends Function {
 
   def *(that: Polynomial): Polynomial = {
     if (this.isConst)
-      that.scaled(this.scalars.head)
+      that.scaledInternal(this.scalars.head)
     else if (that.isConst)
-      this.scaled(that.scalars.head)
+      this.scaledInternal(that.scalars.head)
     else {
       val productScalars = Array.fill[BigDecimal](this.level + that.level + 1)(0)
       for (i <- 0 to this.level)
@@ -90,17 +92,17 @@ class Polynomial(val scalars: List[BigDecimal]) extends Function {
     }
   }
 
-  override def *(that: Function): Function = {
-    if (this.isConst)
-      that * this.scalars.head
-    else if (that.isConst)
-      this * that.const.get
-    else
-      that match {
-        case p: Polynomial => this * p
-        case _ => super.*(that)
-      }
-  }
+//  override def *(that: Function): Function = {
+//    if (this.isConst)
+//      that * this.scalars.head
+//    else if (that.isConst)
+//      this * that.const.get
+//    else
+//      that match {
+//        case p: Polynomial => this * p
+//        case _ => super.*(that)
+//      }
+//  }
 
   override def stringify(format: Format): String = {
     if (isConst)

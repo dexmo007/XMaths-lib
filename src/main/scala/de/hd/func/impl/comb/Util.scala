@@ -1,6 +1,7 @@
-package de.hd.func.comb
+package de.hd.func.impl.comb
 
-import de.hd.func.{Func2Pow, Function}
+import de.hd.func.Function
+import de.hd.func.impl.Func2Pow
 
 import scala.reflect.ClassTag
 
@@ -31,11 +32,11 @@ object Util {
     }
   }
 
-  def powPartition[T <: Function](list: List[Function], matching: T => Boolean)(implicit ev: ClassTag[T]): (List[Func2Pow[T]], List[Function]) = {
-    val emptyLists: (List[Func2Pow[T]], List[Function]) = (Nil, Nil)
+  def powPartition[T <: Function](list: List[Function], matching: T => Boolean)(implicit ev: ClassTag[T]): (List[Func2Pow], List[Function]) = {
+    val emptyLists: (List[Func2Pow], List[Function]) = (Nil, Nil)
     list.foldRight(emptyLists) { case (f, (matched, rest)) =>
       f match {
-        case f2p: Func2Pow[T] => f2p.inner match {
+        case f2p: Func2Pow => f2p.inner match {
           case t: T =>
             if (matching(t)) (f2p :: matched, rest)
             else (matched, t :: rest)

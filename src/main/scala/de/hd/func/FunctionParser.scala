@@ -1,7 +1,7 @@
 package de.hd.func
 
 import de.hd.func.FuncUtils.FuncString
-import de.hd.func.comb.FunctionSum
+import de.hd.func.impl.comb.FunctionSum
 
 import scala.collection.mutable.ListBuffer
 

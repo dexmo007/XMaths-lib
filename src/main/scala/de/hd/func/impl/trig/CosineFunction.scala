@@ -1,4 +1,4 @@
-package de.hd.func.trig
+package de.hd.func.impl.trig
 
 import de.hd.func.Function
 
@@ -6,18 +6,17 @@ import de.hd.func.Function
   * Created by Henrik on 6/25/2016.
   */
 case class CosineFunction private[func](override val scalar: BigDecimal = 1)
-  extends TrigonometricFunction(scalar) {
-
+  extends GenTrigonometricFunction[CosineFunction](scalar) {
 
   override val name: String = "cos"
 
   override def get(x: BigDecimal): BigDecimal = scalar * Math.cos(x.toDouble)
-
-  override def scaled(scalar: BigDecimal): CosineFunction = CosineFunction(this.scalar * scalar)
 
   override def derive(): Function = Function.sin(-scalar)
 
   override def antiderive(c: BigDecimal): Function = Function.sin(scalar) + c
 
   override def equals(that: Function): Boolean = ???
+
+  override def withScalar(newScalar: BigDecimal): CosineFunction = copy(scalar = newScalar)
 }

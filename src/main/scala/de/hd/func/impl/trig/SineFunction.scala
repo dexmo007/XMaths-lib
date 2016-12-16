@@ -1,28 +1,28 @@
-package de.hd.func.trig
+package de.hd.func.impl.trig
 
 import de.hd.func._
+import de.hd.func.impl.{ConcatFunction, Polynomial}
 
 /**
   * the sine function
   */
-case class SineFunction private[func](override val scalar: BigDecimal = 1) extends TrigonometricFunction(scalar) {
-
+case class SineFunction private[func](override val scalar: BigDecimal = 1) extends GenTrigonometricFunction[SineFunction](scalar) {
 
   override val name: String = "sin"
 
   override def get(x: BigDecimal): BigDecimal = scalar * Math.sin(x.toDouble)
 
-  override def scaled(scalar: BigDecimal): SineFunction = SineFunction(this.scalar * scalar)
-
   override def derive(): Function = Function.cos(scalar)
 
   override def antiderive(c: BigDecimal): Function = Function.cos(-scalar) + c
+
+  override def withScalar(newScalar: BigDecimal): SineFunction = copy(scalar = newScalar)
 
   override def equals(that: Function): Boolean = that match {
     case sine: SineFunction =>
       // a*sin(x)=b*sin(x), if a=b
       this.scalar == sine.scalar
-    case concat: ConcatFunction[TrigonometricFunction, Function] =>
+    case concat: ConcatFunction =>
       concat.outer match {
         case sine: SineFunction =>
           if (!concat.inner.isInstanceOf[Polynomial]) {
@@ -50,20 +50,7 @@ case class SineFunction private[func](override val scalar: BigDecimal = 1) exten
         case _ =>
           false
       }
-    case comb: CombinedFunction =>
-      comb.operator == Operator.TIMES && (comb.f1 match {
-        case tan: TangentFunction =>
-          // a*sin(x)=b*tan(x)*c*cos(x), if b*c=a
-          comb.f2.isInstanceOf[CosineFunction] &&
-            comb.f2.asInstanceOf[CosineFunction].scalar * tan.scalar == scalar
-        case cos: CosineFunction =>
-          // a*sin(x)=b*cos(x)*c*tan(x), if b*c=a
-          comb.f2.isInstanceOf[TangentFunction] &&
-            comb.f2.asInstanceOf[TangentFunction].scalar * cos.scalar == scalar
-        case _ => false
-      })
     case _ =>
       false
   }
-
 }

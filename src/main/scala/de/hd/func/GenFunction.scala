@@ -1,20 +1,17 @@
 package de.hd.func
 
-import scala.language.implicitConversions
-
 /**
-  * this trait can be created implicitly for a function to generically scale that function
+  *
   */
-trait GenFunction[T <: Function] {
+trait GenFunction[+T <: Function] extends Function {
+  this: T =>
 
-  def scaled(f: T, scalar: BigDecimal): T
+  protected def scaledInternal(factor: BigDecimal): T
 
-}
+  //todo own numeric type class to enable asBigDecimal feature
+  final override def *(factor: BigDecimal): T = scaledInternal(BigDecimal(factor.toString))
 
-object GenFunction {
+  final override def /(that: BigDecimal): T = scaledInternal(1 / BigDecimal(that.toString))
 
-  implicit class GenFunctionImplicit[T <: Function](f: T) extends GenFunction[T] {
-    override def scaled(f: T, scalar: BigDecimal): T = f.scaled(scalar).asInstanceOf[T]
-  }
-
+  override def unary_- : T = this * -1
 }
