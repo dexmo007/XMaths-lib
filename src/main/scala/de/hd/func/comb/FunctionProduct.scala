@@ -12,39 +12,6 @@ import scala.reflect.ClassTag
   */
 case class FunctionProduct(private val factors: List[Function]) extends Function {
 
-  //  override def *(that: Function): Function = that.simplified match {
-  //    case trig: TrigonometricFunction =>
-  //      val (matched, rest) = Util.genPartition[TrigonometricFunction](factors, _.getClass == trig.getClass)
-  //      if (matched.size == 1) {
-  //        // found a matching trig function
-  //        val comb = Func2Pow(matched.head.withScalar(1).asInstanceOf[TrigonometricFunction], 2, matched.head.scalar * trig.scalar)
-  //        FunctionProduct(comb :: rest)
-  //      } else {
-  //        val (matched, rest) = Util.genPartition[Func2Pow[TrigonometricFunction]](factors, _.inner.getClass == trig.getClass)
-  //        if (matched.size == 1) {
-  //          // found a matching trig function to the nth power
-  //          val comb = Func2Pow(trig.withScalar(1).asInstanceOf[TrigonometricFunction], matched.head.n + 1, trig.scalar * matched.head.scalar)
-  //          FunctionProduct(comb :: rest)
-  //        } else FunctionProduct(trig :: rest)
-  //      }
-  //    case exp: ExponentialFunction =>
-  //      val (matched, rest) = Util.genPartition[ExponentialFunction](factors, _.base == exp.base)
-  //      if (matched.size == 1) {
-  //        val comb = ExponentialFunction(exp.base, matched.head.inner + exp.inner, exp.scalar * matched.head.scalar)
-  //        FunctionProduct(comb :: rest)
-  //      } else FunctionProduct(exp :: rest)
-  //    case log: LogBaseFunction =>
-  //      val (matched, rest) = Util.genPartition[Func2Pow[LnFunction]](factors, _ => true)
-  //      if (matched.size == 1) {
-  //        val comb = Func2Pow(LnFunction(), matched.head.n + 1, matched.head.scalar * log.scalar / Math.log(log.base.toDouble))
-  //        FunctionProduct(comb :: rest)
-  //      } else {
-  //        val mut = Func2Pow(LnFunction(), 1, log.scalar / log.base)
-  //        FunctionProduct(mut :: rest)
-  //      }
-  //    case _: Function => super.*(that)
-  //  }
-
   override def *(that: Function): FunctionProduct = that.simplified match {
     case product: FunctionProduct =>
       var res = this

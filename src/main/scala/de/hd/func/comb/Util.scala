@@ -31,7 +31,6 @@ object Util {
     }
   }
 
-
   def powPartition[T <: Function](list: List[Function], matching: T => Boolean)(implicit ev: ClassTag[T]): (List[Func2Pow[T]], List[Function]) = {
     val emptyLists: (List[Func2Pow[T]], List[Function]) = (Nil, Nil)
     list.foldRight(emptyLists) { case (f, (matched, rest)) =>

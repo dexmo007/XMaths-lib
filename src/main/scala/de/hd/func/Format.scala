@@ -11,7 +11,9 @@ trait Format {
 
   val pi: String
 
-  def fraction(fraction: Fraction): String
+  def fraction(num: String, den: String): String
+
+  def fraction(frac: Fraction): String = fraction(frac.getNumerator.toString, frac.getDenominator.toString)
 
   def num(n: BigDecimal): String = {
     if (n.isValidInt) n.toInt.toString
@@ -86,7 +88,7 @@ object Format {
 
     override val pi: String = "\\pi"
 
-    override def fraction(fraction: Fraction): String = s"\\frac{${fraction.getNumerator}}{${fraction.getDenominator}}"
+    override def fraction(num: String, den: String): String = s"\\frac{$num}{$den}"
 
     override def scalar(scalar: BigDecimal): String = {
       if (scalar == 1) ""
@@ -112,7 +114,7 @@ object Format {
 
     override val pi: String = "pi"
 
-    override def fraction(fraction: Fraction): String = fraction.toString.replaceAll(" ", "")
+    override def fraction(num: String, den: String): String = s"$num/$den"
 
     override def scalar(scalar: BigDecimal): String = {
       if (scalar == 1) ""

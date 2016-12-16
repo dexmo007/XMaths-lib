@@ -8,7 +8,7 @@ import de.hd.func.trig._
 /**
   * trait that defines a mathematical function, a Function is immutable, so all calculation can be done lazily
   */
-trait Function extends Cloneable {
+trait Function {
 
   def get(x: BigDecimal): BigDecimal
 
@@ -30,6 +30,8 @@ trait Function extends Cloneable {
   final lazy val const: Option[BigDecimal] = getConst
 
   final lazy val isConst: Boolean = const.isDefined
+
+  final def isConst(value: BigDecimal): Boolean = const.contains(value)
 
   lazy val isLinear: Boolean = derivative.isConst
 
@@ -82,13 +84,6 @@ trait Function extends Cloneable {
   final implicit class ScalarFloat(f: Float) extends FunctionScalar {
     override def *(that: Function): Function = that.scaled(BigDecimal(f))
   }
-
-  //endregion
-
-  //region cloneablility
-  def cloned(): Function = clone().asInstanceOf[Function]
-
-  override def clone(): AnyRef = super.clone()
 
   //endregion
 
