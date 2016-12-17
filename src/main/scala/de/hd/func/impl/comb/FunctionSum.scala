@@ -1,17 +1,16 @@
 package de.hd.func.impl.comb
 
-import de.hd.func
 import de.hd.func.impl.log.LogBaseFunction
-import de.hd.func.impl.{Func2Pow, Polynomial, RootFunction}
 import de.hd.func.impl.trig.TrigonometricFunction
-import de.hd.func.{Format, Function, GenFunction, ScalarFunction}
+import de.hd.func.impl.{Func2Pow, Polynomial, RootFunction}
+import de.hd.func.{Format, Function, GenFunction, GenScalarFunction}
 
 import scala.reflect.ClassTag
 
 /**
   * A sum of functions
   */
-case class FunctionSum(private val addends: List[Function]) extends Function {
+case class FunctionSum(private val addends: List[Function]) extends GenFunction[FunctionSum] {
 
   override def +(that: Function): Function = that match {
     case sum: FunctionSum =>
@@ -22,9 +21,9 @@ case class FunctionSum(private val addends: List[Function]) extends Function {
       scaleOrAdd[LogBaseFunction](log, _.base)
     case trig: TrigonometricFunction =>
       mergeOrAdd[TrigonometricFunction](trig, _.getClass)((that, f) =>
-        that.scaledInternal((that.scalar + f.scalar) / that.scalar).asInstanceOf[TrigonometricFunction])
-    case f2p: Func2Pow[Function] =>
-      scaleOrAdd[Func2Pow[Function]](f2p, _.inner, _.n)
+        that.withAddedScalar(f.scalar))
+    case f2p: Func2Pow =>
+      scaleOrAdd[Func2Pow](f2p, _.inner, _.n)
     case poly: Polynomial =>
       mergeOrAdd[Polynomial](poly)((that, f) => that + f)
     case root: RootFunction =>
@@ -39,9 +38,8 @@ case class FunctionSum(private val addends: List[Function]) extends Function {
     sum.asInstanceOf[FunctionSum]
   }
 
-  private def mergeOrAdd[T <: Function](that: T, values: (T => Any)*)
-                                       (merge: (T, T) => T)
-                                       (implicit evidence: ClassTag[T]): FunctionSum = {
+  private def mergeOrAdd[T <: Function : ClassTag](that: T, values: (T => Any)*)
+                                                  (merge: (T, T) => T): FunctionSum = {
     //    val (matched, rest) = addends.partition(f => f.isInstanceOf[T] && (values.isEmpty || values.forall(v => v(f) == v(that))))
     val (matched, rest) = Util.genPartition[T](addends, f => values.isEmpty || values.forall(get => get(f) == get(that)))
     if (matched.size == 1)
@@ -57,9 +55,9 @@ case class FunctionSum(private val addends: List[Function]) extends Function {
     * @param evidence class tag for generic type
     * @tparam T a scalable function type
     */
-  private def scaleOrAdd[T <: ScalarFunction](that: T, values: (T => Any)*)
-                                             (implicit evidence: ClassTag[T], gf: GenFunction[T] = that): FunctionSum =
-    mergeOrAdd[T](that, values: _*)((that, f) => gf.scaledInternal(that, (that.scalar + f.scalar) / that.scalar))
+  private def scaleOrAdd[T <: GenScalarFunction[T]](that: T, values: (T => Any)*)
+                                                   (implicit evidence: ClassTag[T]): FunctionSum =
+    mergeOrAdd[T](that, values: _*)((that, f) => that.withAddedScalar(f.scalar))
 
   //    mergeOrAdd[T](that, values: _*)((that, f) => that.scaled((that.scalar + f.scalar) / that.scalar).asInstanceOf[T])
 
@@ -103,7 +101,7 @@ case class FunctionSum(private val addends: List[Function]) extends Function {
     case _ => simplify == that
   }
 
-  override def scaledInternal(scalar: BigDecimal): FunctionSum = FunctionSum(addends.map(_.scaledInternal(scalar)))
+  override def scaledInternal(scalar: BigDecimal): FunctionSum = FunctionSum(addends.map(_ * scalar))
 }
 
 object FunctionSum {

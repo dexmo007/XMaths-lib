@@ -10,9 +10,9 @@ case class EFunction private[func](override val inner: Function, override val sc
 
   override def derive(): Function = {
     if (isConst)
-      0
+      Function.const(0)
     else if (isLinear)
-      inner.derivative.const.get
+      Function.const(inner.derivative.const.get)
     else
       inner.derivative * this
   }
@@ -26,9 +26,9 @@ case class EFunction private[func](override val inner: Function, override val sc
     if (!isLinear)
       throw new UnsupportedOperationException
     if (isConst)
-      getConst.get
+      Function.linear(c, const.get)
     else
-      EFunction(inner) * inner.derivative.const.get + c
+      EFunction(inner) * inner.derivative.const.get + Function.const(c)
   }
 
   override def withScalar(newScalar: BigDecimal): EFunction = copy(scalar = newScalar)

@@ -15,7 +15,7 @@ case class ArctangentFunction private[func](override val scalar: BigDecimal = 1)
 
   override def derive(): Function = scalar / Polynomial(1, 0, 1)
 
-  override def antiderive(c: BigDecimal): Function = Function.linear(scalar) * ArctangentFunction() - Function.ln(scalar / 2).of(Polynomial(1, 0, 1)) + c
+  override def antiderive(c: BigDecimal): Function = Function.linear(scalar) * ArctangentFunction() - Function.ln(scalar / 2).of(Polynomial(1, 0, 1)) + Function.const(c)
 
   override def withScalar(newScalar: BigDecimal): ArctangentFunction = copy(scalar = newScalar)
 

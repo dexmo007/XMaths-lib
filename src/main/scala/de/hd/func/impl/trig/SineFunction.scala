@@ -1,7 +1,7 @@
 package de.hd.func.impl.trig
 
 import de.hd.func._
-import de.hd.func.impl.{ConcatFunction, Polynomial}
+import de.hd.func.impl.{CompositeFunction, Polynomial}
 
 /**
   * the sine function
@@ -14,7 +14,7 @@ case class SineFunction private[func](override val scalar: BigDecimal = 1) exten
 
   override def derive(): Function = Function.cos(scalar)
 
-  override def antiderive(c: BigDecimal): Function = Function.cos(-scalar) + c
+  override def antiderive(c: BigDecimal): Function = Function.cos(-scalar) + Function.const(c)
 
   override def withScalar(newScalar: BigDecimal): SineFunction = copy(scalar = newScalar)
 
@@ -22,7 +22,7 @@ case class SineFunction private[func](override val scalar: BigDecimal = 1) exten
     case sine: SineFunction =>
       // a*sin(x)=b*sin(x), if a=b
       this.scalar == sine.scalar
-    case concat: ConcatFunction =>
+    case concat: CompositeFunction =>
       concat.outer match {
         case sine: SineFunction =>
           if (!concat.inner.isInstanceOf[Polynomial]) {

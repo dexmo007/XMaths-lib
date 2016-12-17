@@ -14,7 +14,8 @@ case class LnFunction private[func](override val scalar: BigDecimal = 1) extends
 
   override def derive(): Function = Function.const(scalar) / Function.linear()
 
-  override def antiderive(c: BigDecimal): Function = Function.linear(scalar) * (LnFunction() - 1) + c
+  override def antiderive(c: BigDecimal): Function =
+    Function.linear(scalar) * (LnFunction() - Function.const(1)) + Function.const(c)
 
   override def withScalar(newScalar: BigDecimal): LnFunction = copy(scalar = newScalar)
 

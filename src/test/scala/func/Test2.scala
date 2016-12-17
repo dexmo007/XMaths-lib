@@ -1,6 +1,5 @@
 package func
 
-import de.hd.func._
 import de.hd.func.impl._
 
 /**
@@ -9,7 +8,7 @@ import de.hd.func.impl._
 object Test2 {
 
   def main(args: Array[String]): Unit = {
-    val p = Polynomial(1, 2, 3)
+    val p: Polynomial = 2 * Polynomial(1, 2, 3)
     println(p)
   }
 

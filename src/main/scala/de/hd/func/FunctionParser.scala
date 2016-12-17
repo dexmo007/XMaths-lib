@@ -137,7 +137,7 @@ object FunctionParser {
         ops += c
         // check if previous factor is pure number
         val option = tryParseNumber(s.substring(lastOpIndex + 1, i))
-        if (option.isDefined) factors += option.get
+        if (option.isDefined) factors += Function.const(option.get)
         lastOpIndex = i
       } else if (c.isLetter) {
         var j = i + 1
@@ -231,16 +231,16 @@ object FunctionParser {
   def getFunction(symbol: String): (BigDecimal) => Function = {
     val s = symbol.toLowerCase
     s match {
-      case "ln" => (scale: BigDecimal) => Function.ln(scale)
-      case "exp" => (scale: BigDecimal) => Function.exp(scale)
-      case "sin" => (scale: BigDecimal) => Function.sin(scale)
-      case "asin" => (scale: BigDecimal) => Function.asin(scale)
-      case "cos" => (scale: BigDecimal) => Function.cos(scale)
-      case "acos" => (scale: BigDecimal) => Function.acos(scale)
-      case "tan" => (scale: BigDecimal) => Function.tan(scale)
-      case "atan" => (scale: BigDecimal) => Function.atan(scale)
-      case "cot" => (scale: BigDecimal) => Function.cot(scale)
-      case "acot" => (scale: BigDecimal) => Function.acot(scale)
+      case "ln" => (scalar: BigDecimal) => Function.ln(scalar)
+      case "exp" => (scalar: BigDecimal) => Function.exp(scalar = scalar)
+      case "sin" => (scalar: BigDecimal) => Function.sin(scalar)
+      case "asin" => (scalar: BigDecimal) => Function.asin(scalar)
+      case "cos" => (scalar: BigDecimal) => Function.cos(scalar)
+      case "acos" => (scalar: BigDecimal) => Function.acos(scalar)
+      case "tan" => (scalar: BigDecimal) => Function.tan(scalar)
+      case "atan" => (scalar: BigDecimal) => Function.atan(scalar)
+      case "cot" => (scalar: BigDecimal) => Function.cot(scalar)
+      case "acot" => (scalar: BigDecimal) => Function.acot(scalar)
       case _ => throw FunctionParseException("No such function:" + symbol)
     }
   }

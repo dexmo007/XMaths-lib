@@ -15,7 +15,8 @@ case class ArccosineFunction private[func](override val scalar: BigDecimal = 1)
 
   override def derive(): Function = -scalar / Function.sqrt().of(Polynomial(1, 0, -1))
 
-  override def antiderive(c: BigDecimal): Function = Function.linear(scalar) * ArccosineFunction() - Function.sqrt(scalar).of(Polynomial(1, 0, -1)) + c
+  override def antiderive(c: BigDecimal): Function =
+    Function.linear(scalar) * ArccosineFunction() - Function.sqrt(scalar).of(Polynomial(1, 0, -1)) + Function.const(c)
 
   override def withScalar(newScalar: BigDecimal): ArccosineFunction = copy(scalar = newScalar)
 

@@ -6,14 +6,14 @@ import de.hd.func.impl.exp.{EFunction, ExponentialFunction}
 import de.hd.func.impl.log.{LnFunction, LogBaseFunction}
 import de.hd.func.impl.trig._
 
+import scala.language.implicitConversions
+
 /**
   * trait that defines a mathematical function, a Function is immutable, so all calculation can be done lazily
   */
 trait Function {
 
   def get(x: BigDecimal): BigDecimal
-
-  //  def scaledInternal(scalar: BigDecimal): Function
 
   protected def derive(): Function
 
@@ -40,7 +40,7 @@ trait Function {
 
   final lazy val simplified: Function = simplify
 
-  def of(inner: Function): Function = ConcatFunction(this, inner)
+  def of(inner: Function): Function = CompositeFunction(this, inner)
 
   def pow(n: Int): Function = Func2Pow(this, n)
 
@@ -52,38 +52,12 @@ trait Function {
 
   def *(factor: BigDecimal): Function
 
-  def unary_- : Function = -1 * this
+  def unary_- : Function = this * -1
 
   def /(that: Function): Function = FunctionQuotient(this, that)
 
   def /(that: BigDecimal): Function
 
-  /**
-    * handles operation between Function and a numeric
-    */
-  private[func] trait FunctionScalar {
-    def *(that: Function): Function
-  }
-
-  final implicit class ScalarBigDecimal(bd: BigDecimal) extends FunctionScalar {
-    override def *(that: Function): Function = that * bd
-  }
-
-  final implicit class ScalarInt(i: Int) extends FunctionScalar {
-    override def *(that: Function): Function = that * i
-  }
-
-  final implicit class ScalarDouble(d: Double) extends FunctionScalar {
-    override def *(that: Function): Function = that * d
-  }
-
-  final implicit class ScalarBigInt(bi: BigInt) extends FunctionScalar {
-    override def *(that: Function): Function = that * BigDecimal(bi)
-  }
-
-  final implicit class ScalarFloat(f: Float) extends FunctionScalar {
-    override def *(that: Function): Function = that * BigDecimal(f)
-  }
 
   def equals(that: Function): Boolean
 
@@ -112,27 +86,27 @@ trait Function {
 
 object Function {
 
-  def cos(scale: BigDecimal = 1): Function = CosineFunction() * scale
+  def cos(scalar: BigDecimal = 1): Function = CosineFunction() * scalar
 
-  def acos(scale: BigDecimal = 1): Function = ArccosineFunction() * scale
+  def acos(scalar: BigDecimal = 1): Function = ArccosineFunction() * scalar
 
-  def sin(scale: BigDecimal = 1): Function = SineFunction() * scale
+  def sin(scalar: BigDecimal = 1): Function = SineFunction() * scalar
 
-  def asin(scale: BigDecimal = 1): Function = ArcsineFunction() * scale
+  def asin(scalar: BigDecimal = 1): Function = ArcsineFunction() * scalar
 
-  def tan(scale: BigDecimal = 1): Function = TangentFunction() * scale
+  def tan(scalar: BigDecimal = 1): Function = TangentFunction() * scalar
 
-  def atan(scale: BigDecimal = 1): Function = ArctangentFunction() * scale
+  def atan(scalar: BigDecimal = 1): Function = ArctangentFunction() * scalar
 
-  def cot(scale: BigDecimal = 1): Function = scale / TangentFunction()
+  def cot(scalar: BigDecimal = 1): Function = scalar / TangentFunction()
 
-  def acot(scale: BigDecimal = 1): Function = ArccotangentFunction() * scale
+  def acot(scalar: BigDecimal = 1): Function = ArccotangentFunction() * scalar
 
-  def ln(scale: BigDecimal = 1): Function = LnFunction() * scale
+  def ln(scalar: BigDecimal = 1): Function = LnFunction() * scalar
 
-  def log10(scale: BigDecimal = 1): Function = LogBaseFunction(10) * scale
+  def log10(scalar: BigDecimal = 1): Function = LogBaseFunction(10) * scalar
 
-  def logb(base: Int, scale: BigDecimal = 1): Function = LogBaseFunction(base) * scale
+  def logb(base: Int, scalar: BigDecimal = 1): Function = LogBaseFunction(base) * scalar
 
   def linear(b: BigDecimal, a: BigDecimal): Function = Polynomial(b, a)
 
@@ -148,19 +122,57 @@ object Function {
 
   def from(method: (BigDecimal) => BigDecimal): Function = MethodFunction(method)
 
-  def sqrt(scale: BigDecimal = 1): Function = RootFunction(2) * scale
+  def sqrt(scalar: BigDecimal = 1): Function = RootFunction(2, scalar)
 
-  def cbrt(scale: BigDecimal = 1): Function = RootFunction(3) * scale
+  def cbrt(scalar: BigDecimal = 1): Function = RootFunction(3, scalar)
 
-  def nthRoot(n: BigDecimal, scale: BigDecimal = 1): Function = RootFunction(n) * scale
+  def nthRoot(n: BigDecimal, scalar: BigDecimal = 1): Function = RootFunction(n) * scalar
 
-  def exp(function: Function = linear(), scale: BigDecimal = 1): Function = EFunction(function) * scale
+  def exp(function: Function = linear(), scalar: BigDecimal = 1): Function = EFunction(function) * scalar
 
-  def expb(base: BigDecimal, function: Function = linear(), scale: BigDecimal = 1): Function = ExponentialFunction(base, function) * scale
+  def expb(base: BigDecimal, function: Function = linear(), scalar: BigDecimal = 1): Function = ExponentialFunction(base, function) * scalar
 
-  implicit def bigDecimalToPolynomial(num: BigDecimal): Function = Polynomial(num)
+  //  implicit def bigDecimalToPolynomial(num: BigDecimal): Function = Polynomial(num)
+  //
+  //  implicit def intToPolynomial(num: Int): Function = Polynomial(num)
 
-  implicit def intToPolynomial(num: Int): Function = Polynomial(num)
+  /**
+    * handles operation between Function and a numeric
+    */
+  private[func] trait FunctionScalar {
+    def *[F <: GenFunction[F]](that: F): F
 
+    def /(that: Function): Func2Pow
+  }
+
+  final implicit class ScalarBigDecimal(bd: BigDecimal) extends FunctionScalar {
+    override def *[F <: GenFunction[F]](that: F): F = that * bd
+
+    override def /(that: Function): Func2Pow = Func2Pow(that, -1, bd)
+  }
+
+  final implicit class ScalarInt(i: Int) extends FunctionScalar {
+    override def *[F <: GenFunction[F]](that: F): F = that * i
+
+    override def /(that: Function): Func2Pow = Func2Pow(that, -1, i)
+  }
+
+  final implicit class ScalarDouble(d: Double) extends FunctionScalar {
+    override def *[F <: GenFunction[F]](that: F): F = that * d
+
+    override def /(that: Function): Func2Pow = Func2Pow(that, -1, d)
+  }
+
+  final implicit class ScalarBigInt(bi: BigInt) extends FunctionScalar {
+    override def *[F <: GenFunction[F]](that: F): F = that * BigDecimal(bi)
+
+    override def /(that: Function): Func2Pow = Func2Pow(that, -1, BigDecimal(bi))
+  }
+
+  final implicit class ScalarFloat(f: Float) extends FunctionScalar {
+    override def *[F <: GenFunction[F]](that: F): F = that * BigDecimal(f)
+
+    override def /(that: Function): Func2Pow = Func2Pow(that, -1, BigDecimal(f))
+  }
 
 }

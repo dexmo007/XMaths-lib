@@ -5,7 +5,7 @@ import de.hd.func.{Format, Function, GenFunction}
 /**
   * Created by Henrik on 6/25/2016.
   */
-case class ConcatFunction private[func](outer: Function, inner: Function) extends GenFunction[ConcatFunction] {
+case class CompositeFunction private[func](outer: Function, inner: Function) extends GenFunction[CompositeFunction] {
 
   override def get(x: BigDecimal): BigDecimal = outer.get(inner.get(x))
 
@@ -14,7 +14,7 @@ case class ConcatFunction private[func](outer: Function, inner: Function) extend
   // todo possible? if not throw unsupported
   override def antiderive(c: BigDecimal): Function = throw new UnsupportedOperationException
 
-  override protected def scaledInternal(factor: BigDecimal): ConcatFunction = ConcatFunction(outer * factor, inner)
+  override protected def scaledInternal(factor: BigDecimal): CompositeFunction = CompositeFunction(outer * factor, inner)
 
   override def getConst: Option[BigDecimal] = if (outer.isConst) outer.const else inner.const
 

@@ -35,7 +35,7 @@ case class Func2Pow private[func](inner: Function, n: Int, override val scalar: 
     if (!isLinear)
       throw new UnsupportedOperationException("can't find anti-derivative if inner function not linear")
     // todo check if inner.constValue.get * res is needed
-    Func2Pow(inner, n + 1, scalar / (n + 1)) / inner.derivative + c
+    Func2Pow(inner, n + 1, scalar / (n + 1)) / inner.derivative + Function.const(c)
   }
 
   override def withScalar(newScalar: BigDecimal): Func2Pow = copy(scalar = newScalar)

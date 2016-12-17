@@ -1,17 +1,18 @@
 package de.hd.func.impl.comb
 
-import de.hd.func.{Format, Function}
+import de.hd.func.{Format, Function, GenFunction}
+
 /**
   * Created by henri on 12/14/2016.
   */
-case class FunctionQuotient(dividend: Function, divisor: Function) extends Function {
+case class FunctionQuotient(dividend: Function, divisor: Function) extends GenFunction[FunctionQuotient] {
 
   if (divisor.isConst(0))
     throw new ArithmeticException("division by 0 undefined")
 
   override def get(x: BigDecimal): BigDecimal = dividend.get(x) / divisor.get(x)
 
-  override def scaledInternal(scalar: BigDecimal): Function = FunctionQuotient(dividend * scalar, divisor)
+  override def scaledInternal(scalar: BigDecimal): FunctionQuotient = FunctionQuotient(dividend * scalar, divisor)
 
   override protected def derive(): Function =
     (dividend.derivative * divisor - (dividend * divisor.derivative)) / divisor.pow(2)
@@ -25,8 +26,8 @@ case class FunctionQuotient(dividend: Function, divisor: Function) extends Funct
     else None
 
   override protected def simplify: Function = {
-    if (isConst) const.get
-    else if (dividend.isConst) dividend.const.get * divisor.pow(-1)
+    if (isConst) Function.const(const.get)
+    else if (dividend.isConst) divisor.pow(-1) * dividend.const.get
     else if (divisor.isConst) dividend * divisor.const.get
     else this
   }

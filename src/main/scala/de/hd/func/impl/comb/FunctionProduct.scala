@@ -4,14 +4,14 @@ import de.hd.func.impl.exp.ExponentialFunction
 import de.hd.func.impl.log.{LnFunction, LogBaseFunction}
 import de.hd.func.impl.trig.TrigonometricFunction
 import de.hd.func.impl.{Func2Pow, Polynomial, RootFunction}
-import de.hd.func.{Format, Function, ScalarFunction}
+import de.hd.func.{Format, Function, GenFunction, ScalarFunction}
 
 import scala.reflect.ClassTag
 
 /**
   * A product of functions that are composed intelligently and simplified in a list
   */
-case class FunctionProduct(private val factors: List[Function]) extends Function {
+case class FunctionProduct(private val factors: List[Function]) extends GenFunction[FunctionProduct] {
 
   override def *(that: Function): FunctionProduct = that.simplified match {
     case product: FunctionProduct =>
@@ -74,7 +74,7 @@ case class FunctionProduct(private val factors: List[Function]) extends Function
 
   override def get(x: BigDecimal): BigDecimal = factors.map(_.get(x)).product
 
-  override def scaledInternal(scalar: BigDecimal): Function = FunctionProduct(factors.head.*(scalar) :: factors.tail)
+  override def scaledInternal(scalar: BigDecimal): FunctionProduct = FunctionProduct(factors.head.*(scalar) :: factors.tail)
 
   override protected def derive(): Function =
     factors.head.derivative * FunctionProduct(factors.tail) + (factors.head * FunctionProduct(factors.tail).derive())
@@ -91,7 +91,7 @@ case class FunctionProduct(private val factors: List[Function]) extends Function
   // todo only one function
   override protected def simplify: Function = {
     lazy val filtered = factors.filterNot(_.const.contains(1))
-    if (isConst) const.get
+    if (isConst) Function.const(const.get)
     else if (filtered.size == 1) filtered.head
     else FunctionProduct(filtered)
   }

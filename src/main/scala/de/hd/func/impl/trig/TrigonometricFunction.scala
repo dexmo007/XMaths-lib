@@ -10,11 +10,22 @@ trait TrigonometricFunction extends ScalarFunction {
     * mathematical name of this trigonometric function, used in `stringify`
     */
   val name: String
+
+  override def *(factor: BigDecimal): TrigonometricFunction
+
+  override def withScalar(newScalar: BigDecimal): TrigonometricFunction
+
+  override def withAddedScalar(toAdd: BigDecimal): TrigonometricFunction
+
+  override def /(that: BigDecimal): TrigonometricFunction
 }
 
 abstract class GenTrigonometricFunction[+T <: TrigonometricFunction](override val scalar: BigDecimal)
   extends GenScalarFunction[T](scalar) with TrigonometricFunction {
   this: T =>
+
+
+  override def withScalar(newScalar: BigDecimal): T
 
   override def +(that: Function): Function = that match {
     case thatTrig: TrigonometricFunction =>

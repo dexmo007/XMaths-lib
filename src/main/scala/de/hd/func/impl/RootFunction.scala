@@ -26,7 +26,7 @@ case class RootFunction private[func](n: BigDecimal, override val scalar: BigDec
   }
 
   override def antiderive(c: BigDecimal): Function = {
-    RootFunction(n / (n + 1), scalar * n / (n + 1)) + c
+    RootFunction(n / (n + 1), scalar * n / (n + 1)) + Function.const(c)
   }
 
   override def withScalar(newScalar: BigDecimal): RootFunction = copy(scalar = newScalar)

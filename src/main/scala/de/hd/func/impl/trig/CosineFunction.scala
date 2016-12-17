@@ -14,7 +14,7 @@ case class CosineFunction private[func](override val scalar: BigDecimal = 1)
 
   override def derive(): Function = Function.sin(-scalar)
 
-  override def antiderive(c: BigDecimal): Function = Function.sin(scalar) + c
+  override def antiderive(c: BigDecimal): Function = Function.sin(scalar) + Function.const(c)
 
   override def equals(that: Function): Boolean = ???
 
