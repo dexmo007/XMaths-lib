@@ -58,7 +58,6 @@ trait Function {
 
   def /(that: BigDecimal): Function
 
-
   def equals(that: Function): Boolean
 
   override def equals(obj: scala.Any): Boolean = obj match {

@@ -64,11 +64,6 @@ class Polynomial(val scalars: List[BigDecimal]) extends GenFunction[Polynomial] 
     0
   }
 
-  override def +(that: Function): Function = that match {
-    case p: Polynomial => this + p
-    case _ => super.+(that)
-  }
-
   /**
     * @param that polynomial to be added
     * @return new polynomial that is equal to this + that
@@ -92,21 +87,9 @@ class Polynomial(val scalars: List[BigDecimal]) extends GenFunction[Polynomial] 
     }
   }
 
-//  override def *(that: Function): Function = {
-//    if (this.isConst)
-//      that * this.scalars.head
-//    else if (that.isConst)
-//      this * that.const.get
-//    else
-//      that match {
-//        case p: Polynomial => this * p
-//        case _ => super.*(that)
-//      }
-//  }
-
   override def stringify(format: Format): String = {
     if (isConst)
-      return format.num(getConst.get)
+      return format.num(const.get)
     val sb = StringBuilder.newBuilder
     for (i <- level to 0 by -1) {
       val scalar = scalars(i)
