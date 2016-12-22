@@ -2,6 +2,7 @@ package de.hd.func
 
 import de.hd.func.FuncUtils._
 import de.hd.func.impl.trig.TrigonometricFunction
+import de.hd.func.impl2.MathFunction
 import org.apache.commons.math3.fraction.Fraction
 
 /**
@@ -42,7 +43,21 @@ trait Format {
       s
   }
 
+  // todo rm
   def base(f: Function): String = {
+    if (f.isConst)
+      base(f.const.get)
+    else f match {
+      case trig: TrigonometricFunction =>
+        if (trig.scalar == 1)
+          trig.stringify(this)
+        else
+          trig.stringify(this).wrap
+      case _ => f.stringify(this).wrap
+    }
+  }
+
+  def base(f: MathFunction): String = {
     if (f.isConst)
       base(f.const.get)
     else f match {
@@ -57,7 +72,17 @@ trait Format {
 
   def pow(s: String): String
 
+  //todo rm
   def pow(f: Function): String = {
+    var s = f.stringify(this)
+    if (f.isConst && f.const.get == 1)
+      return ""
+    if (s.length > 1 && !s.containsNoOps)
+      s = s.wrap
+    pow(s)
+  }
+
+  def pow(f: MathFunction): String = {
     if (f.isConst && f.const.get == 1)
       return ""
     var s = f.stringify(this)

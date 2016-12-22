@@ -2,6 +2,8 @@ package de.hd.func.impl2
 
 import de.hd.func.Format
 
+import scala.language.implicitConversions
+
 /**
   * A representation of a mathematical function; each function instance must be immutable
   *
@@ -36,6 +38,12 @@ trait MathFunction extends (BigDecimal => BigDecimal) {
   final def isConst(c: BigDecimal): Boolean = const.contains(c)
 
   lazy val isLinear: Boolean = derivative.isConst
+
+  lazy val gradient: BigDecimal = derivative.const.get
+
+  lazy val asLinear: Option[Polynomial] =
+    if (isLinear) Some(MathFunction.linear(gradient, this (0)))
+    else None
 
   protected def simplify: MathFunction = this
 
@@ -80,7 +88,7 @@ trait MathFunction extends (BigDecimal => BigDecimal) {
 
   private lazy val plainString = stringify(Format.Plain)
 
-  override def toString(): String = shortString
+  override def toString(): String = plainString
 
   private lazy val shortString = stringify(Format.ShortPlain)
 
@@ -89,6 +97,10 @@ trait MathFunction extends (BigDecimal => BigDecimal) {
 
 object MathFunction {
 
-  def const(c: BigDecimal) = Polynomial(c)
+  def const(c: BigDecimal): Polynomial = Polynomial(c)
+
+  def linear(a: BigDecimal = 1, b: BigDecimal = 0): Polynomial = Polynomial(1 -> a, 0 -> b)
+
+  implicit def constAsPolynomial(c: BigDecimal): Polynomial = Polynomial(c)
 
 }

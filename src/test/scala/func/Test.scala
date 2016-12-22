@@ -1,6 +1,7 @@
 package func
 
-import de.hd.func.impl2.{MathFunction, Polynomial}
+import de.hd.func.impl2.pow.Func2Pow
+import de.hd.func.impl2.{MathFunction, ScalarFunction}
 
 /**
   * Created by henri on 12/17/2016.
@@ -8,17 +9,9 @@ import de.hd.func.impl2.{MathFunction, Polynomial}
 object Test {
 
   def main(args: Array[String]): Unit = {
-    // p(x) = x^4+2x+3
-    val p = Polynomial(0 -> 3, 1 -> 2, 4 -> 1)
-    println(p)
-    //    println("d:" + p.derivative)
-    //    println("a:" + p.antiDerivative)
-    //    println("level:" + p.level)
-    //    println("const:" + p.isConst)
-    //    println("simple:" + p.simplified)
-    //    println("p+p=" + (p + p))
-    //    println("3*p=" + (p * 3))
-    //    println("p*p=" + (p * p))
-    println("p*const(2)=" + (p * MathFunction.const(2)))
+    val pow: Func2Pow = Func2Pow(MathFunction.linear(), 2)
+    val scaled: ScalarFunction[Func2Pow] = pow * 2
+    println(pow.simplified)
   }
 }
+

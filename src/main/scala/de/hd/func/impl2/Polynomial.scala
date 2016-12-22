@@ -2,6 +2,8 @@ package de.hd.func.impl2
 
 import de.hd.func.Format
 
+import scala.language.postfixOps
+
 /**
   * A polynomial that is represented by a map of exponents to coefficients
   */
@@ -63,8 +65,8 @@ case class Polynomial(private val terms: Map[Int, BigDecimal]) extends SelfScale
 
   override protected def simplify: Polynomial = Polynomial(terms.filterNot { case (_, coeff) => coeff == 0 })
 
-  override def equalsFunction(that: MathFunction): Boolean = that match {
-    case Polynomial(thatTerms) => terms == thatTerms
+  override def equalsFunction(that: MathFunction): Boolean = that.simplified match {
+    case Polynomial(thatTerms) => simplified.terms == thatTerms
     case _ => false
   }
 
