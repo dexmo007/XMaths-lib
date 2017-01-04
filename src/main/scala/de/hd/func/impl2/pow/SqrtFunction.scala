@@ -9,9 +9,9 @@ import de.hd.func.impl2.{MathFunction, ScaledByScalar}
   *
   * @author Henrik Drefs
   */
-case class SqrtFunction(override val g: MathFunction) extends AnyFunc2Pow(g, BigDecimal(1) / 2) with ScaledByScalar[SqrtFunction] {
+case class SqrtFunction(override val g: MathFunction) extends AnyFunc2Pow(g, BigDecimal(1) / 2) {
 
-  override def apply(x: BigDecimal): BigDecimal = math.sqrt(x.toDouble)
+  override def apply(x: BigDecimal): BigDecimal = math.sqrt(g(x).toDouble)
 
   // todo adapt format so it can display sqrt and cbrt
   override def stringify(format: Format): String = s"sqrt(${g.stringify(format)})"

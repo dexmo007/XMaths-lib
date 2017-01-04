@@ -1,15 +1,34 @@
 package de.hd.func.impl2
 
 import de.hd.func.Format
+import de.hd.func.FunctionParser.Parsable
+import de.hd.func.impl2.pow.AnyFunc2Pow
 
 /**
   * Created by henri on 12/19/2016.
   */
-case class ScalarFunction[+T <: ScaledByScalar[T]](scalar: BigDecimal, f: T) extends SelfScaled[ScalarFunction[T]] {
+case class ScalarFunction[T <: ScaledByScalar[T]](scalar: BigDecimal, f: T)
+  extends SelfScaled[ScalarFunction[T]] {
 
   override def apply(x: BigDecimal): BigDecimal = scalar * f(x)
 
   override def *(factor: BigDecimal): ScalarFunction[T] = copy(scalar = this.scalar * factor)
+
+
+  override def *?(that: ScalarFunction[T]): Option[MathFunction] =
+    if (this.f == that.f) Some(f.pow(2) * (this.scalar * that.scalar))
+    else that.f match {
+      case AnyFunc2Pow(that.f, n) => Some(f.pow(n + 1) * (this.scalar * that.scalar))
+      case _ => None
+    }
+
+  override def +?(that: ScalarFunction[T]): Option[ScalarFunction[T]] =
+    if (this.f == that.f) Some(copy(scalar = this.scalar + that.scalar))
+    else None
+
+  override def +(that: MathFunction): MathFunction =
+    if (this.f == that) copy(scalar = scalar + 1)
+    else super.+(that)
 
   override protected def derive(): MathFunction = f.derivative * scalar
 
@@ -28,6 +47,15 @@ case class ScalarFunction[+T <: ScaledByScalar[T]](scalar: BigDecimal, f: T) ext
     case _ => scalar == 1 && this.f == that
   }
 
-  // todo check if paren are needed (+- that are not itself in parentheses?)
-  override def stringify(format: Format): String = s"${format.scalar(scalar)}(${f.stringify(format)})"
+  override def stringify(format: Format): String = s"${format.scalar(scalar)}${f.stringify(format).maybeBraces}"
+
+  implicit class FunctionString(s: String) {
+    /**
+      * @return this string wrapped in braces if it contains a sum that is not itself in braces
+      */
+    def maybeBraces: String =
+      if (s.splitAddends.size > 1) s"($s)"
+      else s
+  }
+
 }

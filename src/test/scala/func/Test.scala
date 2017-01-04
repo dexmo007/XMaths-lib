@@ -1,7 +1,7 @@
 package func
 
-import de.hd.func.impl2.pow.Func2Pow
-import de.hd.func.impl2.{MathFunction, ScalarFunction}
+import de.hd.func.FunctionParser
+import de.hd.func.impl2.{MathFunction, Polynomial}
 
 /**
   * Created by henri on 12/17/2016.
@@ -9,9 +9,7 @@ import de.hd.func.impl2.{MathFunction, ScalarFunction}
 object Test {
 
   def main(args: Array[String]): Unit = {
-    val pow: Func2Pow = Func2Pow(MathFunction.linear(), 2)
-    val scaled: ScalarFunction[Func2Pow] = pow * 2
-    println(pow.simplified)
+    println(FunctionParser.parse("2x").derivative)
   }
 }
 

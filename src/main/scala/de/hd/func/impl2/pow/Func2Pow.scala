@@ -1,7 +1,6 @@
 package de.hd.func.impl2.pow
 
-import de.hd.func.Format
-import de.hd.func.impl2.{MathFunction, Polynomial, ScaledByScalar}
+import de.hd.func.impl2.{MathFunction, Polynomial}
 
 /**
   * A function that takes another function `g` and results in the power to an integer value `i`:
@@ -9,7 +8,7 @@ import de.hd.func.impl2.{MathFunction, Polynomial, ScaledByScalar}
   *
   * @author Henrik Drefs
   */
-case class Func2Pow(override val g: MathFunction, i: Int) extends AnyFunc2Pow(g, i) with ScaledByScalar[Func2Pow] {
+case class Func2Pow(override val g: MathFunction, i: Int) extends AnyFunc2Pow(g, i) {
 
   override def apply(x: BigDecimal): BigDecimal = g(x) pow i
 
@@ -25,7 +24,10 @@ case class Func2Pow(override val g: MathFunction, i: Int) extends AnyFunc2Pow(g,
     */
   override def antiDerive(c: BigDecimal): MathFunction =
     if (!g.isLinear) throw new UnsupportedOperationException
+    else if (i == -1) MathFunction.ln(g) / g.gradient
     else (g pow (i + 1)) / ((i + 1) * g.gradient) + c
+
+  override def pow(n: Int): MathFunction = Func2Pow(g, this.i * n)
 
   override protected def getConst: Option[BigDecimal] =
     if (i == 0) Some(1)
@@ -42,10 +44,4 @@ case class Func2Pow(override val g: MathFunction, i: Int) extends AnyFunc2Pow(g,
       //      case RootFunction(_, _) => f.simplified
       case _ => copy(g = g.simplified)
     }
-
-  override def equalsFunction(that: MathFunction): Boolean = (this.simplified, that.simplified) match {
-    case (Func2Pow(f1, n1), Func2Pow(f2, n2)) => f1 == f2 && n1 == n2
-    case (Func2Pow(_, _), _) | (_, Func2Pow(_, _)) => false
-    case _ => this.simplified == that.simplified
-  }
 }

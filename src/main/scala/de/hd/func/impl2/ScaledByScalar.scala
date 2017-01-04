@@ -1,5 +1,7 @@
 package de.hd.func.impl2
 
+import scala.reflect.ClassTag
+
 /**
   * A function that is scaled by a preceding scalar;
   *
@@ -8,8 +10,16 @@ package de.hd.func.impl2
   *
   * @author Henrik Drefs
   */
-trait ScaledByScalar[+T <: ScaledByScalar[T]] extends MathFunction {
+abstract class ScaledByScalar[T <: ScaledByScalar[T] : ClassTag] extends MathFunction {
   this: T =>
 
   override def *(factor: BigDecimal): ScalarFunction[T] = ScalarFunction(factor, this)
+
+  override def +(that: MathFunction): MathFunction = that match {
+    case ScalarFunction(thatScalar, thatF) =>
+      if (this == thatF) ScalarFunction(thatScalar + 1, this)
+      else super.+(that)
+    case _ => if (this == that) this * 2 else super.+(that)
+  }
+
 }

@@ -19,7 +19,7 @@ case class FunctionProduct(private val factors: List[Function]) extends GenFunct
       for (f <- product.factors) res *= f
       res
     case trig: TrigonometricFunction =>
-      findAndMergeAsPow[TrigonometricFunction](trig, _.getClass)(trig.withScalar(1).asInstanceOf[TrigonometricFunction],
+      findAndMergeAsPow[TrigonometricFunction](trig, _.getClass)(trig.withScalar(1),
         (t, m) => t.scalar * m.scalar)(_.scalar)
     case exp: ExponentialFunction =>
       simpleFindAndMerge[ExponentialFunction](exp, _.base) {
@@ -88,7 +88,6 @@ case class FunctionProduct(private val factors: List[Function]) extends GenFunct
 
   override def equals(that: Function): Boolean = ???
 
-  // todo only one function
   override protected def simplify: Function = {
     lazy val filtered = factors.filterNot(_.const.contains(1))
     if (isConst) Function.const(const.get)

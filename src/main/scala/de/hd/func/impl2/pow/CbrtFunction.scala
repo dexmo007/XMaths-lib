@@ -9,9 +9,9 @@ import de.hd.func.impl2.{MathFunction, ScaledByScalar}
   *
   * @author Henrik Drefs
   */
-case class CbrtFunction(override val g: MathFunction) extends AnyFunc2Pow(g, BigDecimal(1) / 3) with ScaledByScalar[CbrtFunction] {
+case class CbrtFunction(override val g: MathFunction) extends AnyFunc2Pow(g, BigDecimal(1) / 3) {
 
-  override def apply(x: BigDecimal): BigDecimal = math.cbrt(x.toDouble)
+  override def apply(x: BigDecimal): BigDecimal = math.cbrt(g(x).toDouble)
 
   // todo format adaption
   override def stringify(format: Format): String = s"cbrt(${g.stringify(format)})"

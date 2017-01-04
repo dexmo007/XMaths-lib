@@ -30,7 +30,7 @@ abstract class GenTrigonometricFunction[+T <: TrigonometricFunction](override va
   override def +(that: Function): Function = that match {
     case thatTrig: TrigonometricFunction =>
       if (this.getClass == that.getClass)
-        this * ((scalar + thatTrig.scalar) / scalar)
+        this withAddedScalar thatTrig.scalar
       else super.+(that)
     case _ => super.+(that)
   }

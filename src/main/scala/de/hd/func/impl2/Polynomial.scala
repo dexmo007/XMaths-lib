@@ -6,8 +6,12 @@ import scala.language.postfixOps
 
 /**
   * A polynomial that is represented by a map of exponents to coefficients
+  *
+  * @author Henrik Drefs
   */
 case class Polynomial(private val terms: Map[Int, BigDecimal]) extends SelfScaled[Polynomial] {
+
+  require(terms.keys.forall(_ >= 0), "A polynomial must only have positive exponents.")
 
   override def apply(x: BigDecimal): BigDecimal = terms.map {
     case (exp, coeff) => coeff * x.pow(exp)
@@ -15,25 +19,26 @@ case class Polynomial(private val terms: Map[Int, BigDecimal]) extends SelfScale
 
   override def *(factor: BigDecimal): Polynomial = Polynomial(terms mapValues (_ * factor))
 
-  def *(that: Polynomial): Polynomial =
-    if (that.isConst) this * that.const.get
-    else if (this.isConst) that * this.const.get
-    else {
-      val product = (for {
-        (exp, coeff) <- this.simplified.terms.toList
-        (thatExp, thatCoeff) <- that.simplified.terms
-      } yield (exp + thatExp, coeff * thatCoeff)).foldLeft(Map.empty[Int, BigDecimal])({
-        case (rest, (exp, coeff)) => rest + (exp -> (coeff + rest.getOrElse(exp, 0)))
+  override def *?(that: Polynomial): Option[Polynomial] =
+    Some(
+      if (that.isConst) this * that.const.get
+      else if (this.isConst) that * this.const.get
+      else {
+        val product = (for {
+          (exp, coeff) <- this.simplified.terms.toList
+          (thatExp, thatCoeff) <- that.simplified.terms
+        } yield (exp + thatExp, coeff * thatCoeff)).foldLeft(Map.empty[Int, BigDecimal])({
+          case (rest, (exp, coeff)) => rest + (exp -> (coeff + rest.getOrElse(exp, 0)))
+        })
+        Polynomial(product)
       })
-      Polynomial(product)
-    }
 
-  def +(that: Polynomial): Polynomial = {
+  override def +?(that: Polynomial): Option[Polynomial] = Some(
     Polynomial((that.terms foldLeft this.terms) ((ts, t) => {
       val (exp, coeff) = t
       ts + (exp -> (coeff + ts.getOrElse(exp, 0)))
     }))
-  }
+  )
 
   override lazy val derivative: Polynomial = derive()
 
@@ -65,8 +70,9 @@ case class Polynomial(private val terms: Map[Int, BigDecimal]) extends SelfScale
 
   override protected def simplify: Polynomial = Polynomial(terms.filterNot { case (_, coeff) => coeff == 0 })
 
-  override def equalsFunction(that: MathFunction): Boolean = that.simplified match {
-    case Polynomial(thatTerms) => simplified.terms == thatTerms
+  override def equalsFunction(that: MathFunction): Boolean = that match {
+    // todo check if map equals always does the job correctly?
+    case Polynomial(thatTerms) => terms == thatTerms
     case _ => false
   }
 

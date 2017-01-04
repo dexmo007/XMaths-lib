@@ -28,7 +28,7 @@ case class FunctionQuotient(dividend: Function, divisor: Function) extends GenFu
   override protected def simplify: Function = {
     if (isConst) Function.const(const.get)
     else if (dividend.isConst) divisor.pow(-1) * dividend.const.get
-    else if (divisor.isConst) dividend * divisor.const.get
+    else if (divisor.isConst) dividend / divisor.const.get
     else this
   }
 

@@ -1,6 +1,10 @@
 package de.hd.func.impl2
 
 import de.hd.func.Format
+import de.hd.func.impl2.log.{LnFunction, Log10Function, LogBaseFunction}
+import de.hd.func.impl2.op.{FunctionQuotient, FunctionSum}
+import de.hd.func.impl2.pow.{AnyFunc2Pow, CbrtFunction, Func2Pow, SqrtFunction}
+import de.hd.func.impl2.trig.{CosineFunction, SineFunction}
 
 import scala.language.implicitConversions
 
@@ -48,11 +52,10 @@ trait MathFunction extends (BigDecimal => BigDecimal) {
   protected def simplify: MathFunction = this
 
   lazy val simplified: MathFunction =
-    if (isConst) MathFunction.const(const.get)
+    if (isConst) const.get
     else simplify
 
-  // todo conversion of FunctionsSum
-  def +(that: MathFunction): MathFunction = ???
+  def +(that: MathFunction): MathFunction = FunctionSum() + this + that
 
   final def unary_- : MathFunction = this * -1
 
@@ -61,22 +64,28 @@ trait MathFunction extends (BigDecimal => BigDecimal) {
   def *(factor: BigDecimal): MathFunction
 
   //todo convert FunctionProduct
-  def *(that: MathFunction): MathFunction = ???
+  def *(that: MathFunction): MathFunction =
+    if (this == that) this pow 2
+    else if (that.isConst) this * that.const.get
+    else ???
 
   def /(divisor: BigDecimal): MathFunction = this * (1 / divisor)
 
-  // todo convert quot
-  def /(that: MathFunction): MathFunction = ???
+  def /(that: MathFunction): MathFunction = that match {
+    case FunctionQuotient(dividend, divisor) => (this * divisor) / dividend
+    case _ => FunctionQuotient(this, that)
+  }
 
-  // todo convert Func2Pow
-  def pow(n: Int): MathFunction = ???
+  def pow(n: Int): MathFunction = Func2Pow(this, n)
+
+  def pow(n: BigDecimal): MathFunction = AnyFunc2Pow(this, n)
 
   def equalsFunction(that: MathFunction): Boolean
 
   final override def equals(obj: scala.Any): Boolean = obj match {
     case that: MathFunction =>
       if (isConst && that.isConst) this.const.get == that.const.get
-      else equalsFunction(that)
+      else simplified.equalsFunction(that.simplified)
     case _ => const.contains(obj)
   }
 
@@ -93,6 +102,15 @@ trait MathFunction extends (BigDecimal => BigDecimal) {
   private lazy val shortString = stringify(Format.ShortPlain)
 
   def toShortString: String = shortString
+
+  final implicit class BigDecImplicit(bd: BigDecimal) {
+    def x: Polynomial = Polynomial(1 -> bd)
+  }
+
+  final implicit class BigDecPow(bd: BigDecimal) {
+    def pow(n: BigDecimal): BigDecimal = math.pow(bd.toDouble, n.toDouble)
+  }
+
 }
 
 object MathFunction {
@@ -101,6 +119,42 @@ object MathFunction {
 
   def linear(a: BigDecimal = 1, b: BigDecimal = 0): Polynomial = Polynomial(1 -> a, 0 -> b)
 
+  val x: Polynomial = linear()
+
+  def cos(f: MathFunction = x): MathFunction = CosineFunction(f)
+
+  def acos(): MathFunction = ???
+
+  def sin(f: MathFunction = x): MathFunction = SineFunction(f)
+
+  def asin(): MathFunction = ???
+
+  def tan(): MathFunction = ???
+
+  def atan(): MathFunction = ???
+
+  def cot(): MathFunction = ???
+
+  def acot(): MathFunction = ???
+
+  def ln(f: MathFunction = x): MathFunction = LnFunction(f)
+
+  def log10(f: MathFunction = x): MathFunction = Log10Function(f)
+
+  def logb(base: BigDecimal, f: MathFunction = x): MathFunction = LogBaseFunction(base, f)
+
+  def from(method: (BigDecimal) => BigDecimal): MathFunction = ???
+
+  def sqrt(f: MathFunction = x): MathFunction = SqrtFunction(f)
+
+  def cbrt(f: MathFunction = x): MathFunction = CbrtFunction(f)
+
+  def exp(f: MathFunction = x): MathFunction = ???
+
+  def expb(base: BigDecimal, function: MathFunction = x): MathFunction =
+    ???
+
   implicit def constAsPolynomial(c: BigDecimal): Polynomial = Polynomial(c)
+
 
 }
