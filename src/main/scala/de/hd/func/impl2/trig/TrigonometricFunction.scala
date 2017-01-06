@@ -3,12 +3,14 @@ package de.hd.func.impl2.trig
 import de.hd.func.Format
 import de.hd.func.impl2.{MathFunction, ScaledByScalar}
 
+import scala.reflect.ClassTag
+
 /**
   * Superclass of all trigonometric functions, that apply some this function to the value of `f(x)`
   *
   * @author Henrik Drefs
   */
-abstract class TrigonometricFunction[T <: TrigonometricFunction[T]](f: MathFunction)
+abstract class TrigonometricFunction[T <: TrigonometricFunction[T] :  ClassTag](f: MathFunction)
   extends ScaledByScalar[T] {
   this: T =>
 

@@ -1,6 +1,6 @@
 package de.hd.func
 
-import de.hd.func.FunctionParser.FunctionParseException
+import de.hd.func.FunctionParser._
 import org.apache.commons.math3.fraction.Fraction
 
 import scala.collection.mutable
@@ -76,6 +76,13 @@ object FuncUtils {
       }
       res
     }
+
+    /**
+      * @return this string wrapped in braces if it contains a sum that is not itself in braces
+      */
+    def maybeBraces: String =
+      if (s.splitAddends.size > 1) s"($s)"
+      else s
   }
 
 }

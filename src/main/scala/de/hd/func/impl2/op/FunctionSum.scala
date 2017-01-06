@@ -61,7 +61,10 @@ case class FunctionSum private[op](addends: List[MathFunction]) extends SelfScal
     else FunctionSum(rest)
   }
 
-  override def equalsFunction(that: MathFunction): Boolean = ???
+  override def equalsFunction(that: MathFunction): Boolean = (simplified, that.simplified) match {
+    case (FunctionSum(addends1), FunctionSum(addends2)) => addends1.toSet == addends2.toSet
+    case _ => false
+  }
 
   override def stringify(format: Format): String = simplified match {
     case FunctionSum(terms) => terms map (_.stringify(format)) mkString "+"

@@ -1,7 +1,7 @@
 package de.hd.func.impl2
 
 import de.hd.func.Format
-import de.hd.func.FunctionParser.Parsable
+import de.hd.func.FuncUtils._
 import de.hd.func.impl2.pow.AnyFunc2Pow
 
 /**
@@ -48,14 +48,5 @@ case class ScalarFunction[T <: ScaledByScalar[T]](scalar: BigDecimal, f: T)
   }
 
   override def stringify(format: Format): String = s"${format.scalar(scalar)}${f.stringify(format).maybeBraces}"
-
-  implicit class FunctionString(s: String) {
-    /**
-      * @return this string wrapped in braces if it contains a sum that is not itself in braces
-      */
-    def maybeBraces: String =
-      if (s.splitAddends.size > 1) s"($s)"
-      else s
-  }
 
 }
