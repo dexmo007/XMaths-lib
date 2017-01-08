@@ -1,7 +1,8 @@
 package de.hd.func
 
 import de.hd.func.FuncUtils.FuncString
-import de.hd.func.impl.comb.FunctionSum
+import de.hd.func.impl2.op.FunctionSum
+import de.hd.func.impl2.{MathFunction, Polynomial}
 
 import scala.collection.mutable.ListBuffer
 
@@ -12,20 +13,20 @@ object FunctionParser {
   private val validChars = "+-*^x."
   private val validOps = "+-*/^"
 
-  def tryParse(s: String): Option[Function] = try {
+  def tryParse(s: String): Option[MathFunction] = try {
     Some(parse(s))
   } catch {
     case _: Exception => None
   }
 
-  def parseOrEval(s: String): Either[Function, BigDecimal] = {
+  def parseOrEval(s: String): Either[MathFunction, BigDecimal] = {
     val f = parse(s)
     if (f.isConst)
       Right(f.const.get)
     else Left(f)
   }
 
-  def tryParseOrEval(s: String): Option[Either[Function, BigDecimal]] = try {
+  def tryParseOrEval(s: String): Option[Either[MathFunction, BigDecimal]] = try {
     Some(parseOrEval(s))
   } catch {
     case _: Exception => None
@@ -125,11 +126,11 @@ object FunctionParser {
     }
   }
 
-  private def parseAddend(addend: String): Function = {
+  private def parseAddend(addend: String): MathFunction = {
     val s = addend.unwrap
     var lastOpIndex = -1
     val ops = new ListBuffer[Char]()
-    val factors = new ListBuffer[Function]()
+    val factors = new ListBuffer[MathFunction]()
     var i = 0
     while (i < s.length) {
       val c = s(i)
@@ -137,7 +138,7 @@ object FunctionParser {
         ops += c
         // check if previous factor is pure number
         val option = tryParseNumber(s.substring(lastOpIndex + 1, i))
-        if (option.isDefined) factors += Function.const(option.get)
+        if (option.isDefined) factors += MathFunction.const(option.get)
         lastOpIndex = i
       } else if (c.isLetter) {
         var j = i + 1
@@ -145,13 +146,13 @@ object FunctionParser {
           j += 1
         // skip these letters in loop
         val advance = j - i - 1
-        val func: Function = s.substring(i, j) match {
-          case "e" => Function.const(Math.E)
-          case "pi" => Function.const(Math.PI)
+        val func: MathFunction = s.substring(i, j) match {
+          case "e" => MathFunction.const(Math.E)
+          case "pi" => MathFunction.const(Math.PI)
           case "x" =>
             val scalar = readScalar(s, i - 1)
             val pow = readPow(s, i + 1)
-            Function.xToN(pow, scalar)
+            Polynomial(pow -> scalar)
           // must be an inner function
           case any: String =>
             if (s(j) != '(')
@@ -160,7 +161,7 @@ object FunctionParser {
             val scalar = readScalar(s, i - 1)
             // skip (...) for loop
             i += close - j
-            getFunction(any)(scalar) of parse(s.substring(j + 1, close))
+            evaluateFunction(any)(parse(s.substring(j + 1, close))) * scalar
         }
         i += advance
         factors += func
@@ -177,9 +178,9 @@ object FunctionParser {
     reduced
   }
 
-  def parse(s: String): Function = {
+  def parse(s: String): MathFunction = {
     val str = s.loseRedundant
-    var res: Function = FunctionSum()
+    var res: MathFunction = FunctionSum()
     for (rawAddend <- str.splitAddends) {
       res += parseAddend(rawAddend).simplified
     }
@@ -228,21 +229,41 @@ object FunctionParser {
   }
 
   // todo as map
-  def getFunction(symbol: String): (BigDecimal) => Function = {
-    val s = symbol.toLowerCase
-    s match {
-      case "ln" => (scalar: BigDecimal) => Function.ln(scalar)
-      case "exp" => (scalar: BigDecimal) => Function.exp(scalar = scalar)
-      case "sin" => (scalar: BigDecimal) => Function.sin(scalar)
-      case "asin" => (scalar: BigDecimal) => Function.asin(scalar)
-      case "cos" => (scalar: BigDecimal) => Function.cos(scalar)
-      case "acos" => (scalar: BigDecimal) => Function.acos(scalar)
-      case "tan" => (scalar: BigDecimal) => Function.tan(scalar)
-      case "atan" => (scalar: BigDecimal) => Function.atan(scalar)
-      case "cot" => (scalar: BigDecimal) => Function.cot(scalar)
-      case "acot" => (scalar: BigDecimal) => Function.acot(scalar)
-      case _ => throw FunctionParseException("No such function:" + symbol)
+  //  def getFunction(symbol: String): (BigDecimal) => Function = {
+  //    val s = symbol.toLowerCase
+  //    s match {
+  //      case "ln" => (scalar: BigDecimal) => Function.ln(scalar)
+  //      case "exp" => (scalar: BigDecimal) => Function.exp(scalar = scalar)
+  //      case "sin" => (scalar: BigDecimal) => Function.sin(scalar)
+  //      case "asin" => (scalar: BigDecimal) => Function.asin(scalar)
+  //      case "cos" => (scalar: BigDecimal) => Function.cos(scalar)
+  //      case "acos" => (scalar: BigDecimal) => Function.acos(scalar)
+  //      case "tan" => (scalar: BigDecimal) => Function.tan(scalar)
+  //      case "atan" => (scalar: BigDecimal) => Function.atan(scalar)
+  //      case "cot" => (scalar: BigDecimal) => Function.cot(scalar)
+  //      case "acot" => (scalar: BigDecimal) => Function.acot(scalar)
+  //      case _ => throw FunctionParseException("No such function:" + symbol)
+  //    }
+  //  }
+
+  private val functionsMap: Map[String, (MathFunction => MathFunction)] = Map(
+    "ln" -> MathFunction.ln,
+    "log" -> MathFunction.ln,
+    "exp" -> MathFunction.exp,
+    "sin" -> MathFunction.sin,
+    "cos" -> MathFunction.cos,
+    "tan" -> MathFunction.tan
+  )
+
+  def evaluateFunction(symbol: String): (MathFunction => MathFunction) = {
+    if (functionsMap.contains(symbol))
+      functionsMap(symbol)
+    else if (symbol startsWith "log") {
+      val base = BigDecimal(symbol.substring(3))
+      if (base == 10) MathFunction.log10
+      else f => MathFunction.logb(base, f)
     }
+    else throw FunctionParseException("No such function: " + symbol)
   }
 
   case class FunctionParseException(message: String = "") extends FunctionException(message)

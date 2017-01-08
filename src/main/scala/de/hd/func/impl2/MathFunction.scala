@@ -2,7 +2,7 @@ package de.hd.func.impl2
 
 import de.hd.func.Format
 import de.hd.func.impl2.log.{LnFunction, Log10Function, LogBaseFunction}
-import de.hd.func.impl2.op.{FunctionQuotient, FunctionSum}
+import de.hd.func.impl2.op.{FunctionProduct, FunctionQuotient, FunctionSum}
 import de.hd.func.impl2.pow.{AnyFunc2Pow, CbrtFunction, Func2Pow, SqrtFunction}
 import de.hd.func.impl2.trig.{CosineFunction, SineFunction}
 
@@ -55,7 +55,7 @@ trait MathFunction extends (BigDecimal => BigDecimal) {
     if (isConst) const.get
     else simplify
 
-  def +(that: MathFunction): MathFunction = FunctionSum() + this + that
+  def +(that: MathFunction): MathFunction = FunctionSum(this, that)
 
   final def unary_- : MathFunction = this * -1
 
@@ -67,7 +67,7 @@ trait MathFunction extends (BigDecimal => BigDecimal) {
   def *(that: MathFunction): MathFunction =
     if (this == that) this pow 2
     else if (that.isConst) this * that.const.get
-    else ???
+    else FunctionProduct(this, that)
 
   def /(divisor: BigDecimal): MathFunction = this * (1 / divisor)
 
@@ -129,7 +129,7 @@ object MathFunction {
 
   def asin(): MathFunction = ???
 
-  def tan(): MathFunction = ???
+  def tan(f: MathFunction = linear()): MathFunction = ???
 
   def atan(): MathFunction = ???
 

@@ -7,7 +7,7 @@ import de.hd.func.impl2.{MathFunction, SelfScaled}
 /**
   * Created by henri on 1/5/2017.
   */
-case class FunctionProduct(terms: List[MathFunction]) extends SelfScaled[FunctionProduct] {
+case class FunctionProduct private[op](terms: List[MathFunction]) extends SelfScaled[FunctionProduct] {
   override def apply(x: BigDecimal): BigDecimal = terms.map(f => f(x)).product
 
   override def *(factor: BigDecimal): FunctionProduct = FunctionProduct(terms.head * factor :: terms.tail)
@@ -51,10 +51,23 @@ case class FunctionProduct(terms: List[MathFunction]) extends SelfScaled[Functio
   override protected def simplify: MathFunction = {
     val filtered = terms.filterNot(_.const.contains(1))
     if (filtered.size == 1) filtered.head
-    else FunctionProduct(filtered)
+    else {
+      val (constants, rest) = filtered.partition(_.isConst)
+      val const = constants.map(_.const.get).product
+      val terms =
+        if (const == 1) rest
+        else rest.head * const :: rest.tail
+      if (terms.size == 1)
+        terms.head
+      else FunctionProduct(terms)
+    }
   }
 
   override def equalsFunction(that: MathFunction): Boolean = ???
 
   override def stringify(format: Format): String = terms.map(_.stringify(format).maybeBraces) mkString "*"
+}
+
+object FunctionProduct {
+  def apply(first: MathFunction, second: MathFunction) = new FunctionProduct(List(first, second))
 }
